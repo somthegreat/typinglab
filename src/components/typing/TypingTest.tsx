@@ -6,6 +6,9 @@ import { Button } from '@/components/ui/button';
 import { RefreshCw, Clock, Hash, Quote, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import TestResults from './TestResults';
+import { useSaveTestResult } from '@/hooks/useTestResults';
+import { useCheckAchievements } from '@/hooks/useAchievements';
+import { useAuth } from '@/contexts/AuthContext';
 
 type TestMode = 'time' | 'words' | 'quote' | 'custom';
 type TimeOption = 15 | 30 | 60 | 120;
@@ -20,6 +23,10 @@ const TypingTest: React.FC = () => {
   const [showResults, setShowResults] = useState(false);
   const [finalStats, setFinalStats] = useState<TypingStats | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  
+  const { user } = useAuth();
+  const saveTestResult = useSaveTestResult();
+  const checkAchievements = useCheckAchievements();
 
   const getTestText = () => {
     switch (mode) {
@@ -30,9 +37,19 @@ const TypingTest: React.FC = () => {
     }
   };
 
-  const handleComplete = (stats: TypingStats) => {
+  const handleComplete = async (stats: TypingStats) => {
     setFinalStats(stats);
     setShowResults(true);
+    
+    if (user) {
+      await saveTestResult.mutateAsync({
+        stats,
+        mode,
+        wordCount: mode === 'words' ? wordOption : undefined,
+        textContent: text,
+      });
+      await checkAchievements.mutateAsync({ wpm: stats.wpm, accuracy: stats.accuracy });
+    }
   };
 
   const { input, isStarted, isFinished, currentIndex, errors, stats, timeRemaining, handleKeyDown, reset, targetText } = useTypingTest({
