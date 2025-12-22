@@ -95,6 +95,8 @@ const Stats: React.FC = () => {
             <div className="mb-8">
               <WeakKeysDisplay />
             </div>
+
+            {chartData.length > 0 ? (
               <div className="space-y-8">
                 <div className="glass-card rounded-xl p-6">
                   <h3 className="text-lg font-semibold mb-4">WPM Progress</h3>
