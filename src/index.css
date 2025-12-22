@@ -82,6 +82,146 @@
     --shadow-neon: 0 0 30px hsl(262, 83%, 58%, 0.4);
     --shadow-glow: 0 0 60px hsl(262, 83%, 58%, 0.25);
   }
+
+  /* Matrix Theme */
+  .matrix {
+    --background: 120 100% 2%;
+    --foreground: 120 100% 70%;
+    --card: 120 100% 4%;
+    --card-foreground: 120 100% 70%;
+    --popover: 120 100% 4%;
+    --popover-foreground: 120 100% 70%;
+    --primary: 120 100% 50%;
+    --primary-foreground: 120 100% 2%;
+    --secondary: 120 50% 8%;
+    --secondary-foreground: 120 100% 70%;
+    --muted: 120 30% 10%;
+    --muted-foreground: 120 50% 40%;
+    --accent: 120 100% 40%;
+    --accent-foreground: 120 100% 2%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 120 50% 15%;
+    --input: 120 50% 15%;
+    --ring: 120 100% 50%;
+    --correct: 120 100% 50%;
+    --incorrect: 0 84% 60%;
+    --neon-purple: 120 100% 50%;
+    --neon-cyan: 120 100% 60%;
+    --neon-pink: 120 100% 40%;
+    --neon-green: 120 100% 50%;
+    --neon-orange: 120 80% 45%;
+    --neon-yellow: 120 100% 55%;
+    --gradient-primary: linear-gradient(135deg, hsl(120, 100%, 50%), hsl(120, 100%, 30%));
+    --gradient-accent: linear-gradient(135deg, hsl(120, 100%, 40%), hsl(120, 100%, 60%));
+    --shadow-neon: 0 0 30px hsl(120, 100%, 50%, 0.5);
+    --shadow-glow: 0 0 60px hsl(120, 100%, 50%, 0.3);
+  }
+
+  /* Ocean Theme */
+  .ocean {
+    --background: 210 80% 8%;
+    --foreground: 200 80% 90%;
+    --card: 210 70% 12%;
+    --card-foreground: 200 80% 90%;
+    --popover: 210 70% 12%;
+    --popover-foreground: 200 80% 90%;
+    --primary: 200 100% 50%;
+    --primary-foreground: 210 80% 8%;
+    --secondary: 210 50% 18%;
+    --secondary-foreground: 200 80% 90%;
+    --muted: 210 40% 20%;
+    --muted-foreground: 200 40% 55%;
+    --accent: 175 100% 45%;
+    --accent-foreground: 210 80% 8%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 210 50% 25%;
+    --input: 210 50% 25%;
+    --ring: 200 100% 50%;
+    --correct: 175 100% 45%;
+    --incorrect: 0 84% 60%;
+    --neon-purple: 220 100% 60%;
+    --neon-cyan: 180 100% 50%;
+    --neon-pink: 200 100% 70%;
+    --neon-green: 175 100% 45%;
+    --neon-orange: 200 80% 55%;
+    --neon-yellow: 190 100% 55%;
+    --gradient-primary: linear-gradient(135deg, hsl(200, 100%, 50%), hsl(220, 100%, 60%));
+    --gradient-accent: linear-gradient(135deg, hsl(175, 100%, 45%), hsl(190, 100%, 50%));
+    --shadow-neon: 0 0 30px hsl(200, 100%, 50%, 0.5);
+    --shadow-glow: 0 0 60px hsl(200, 100%, 50%, 0.3);
+  }
+
+  /* Sunset Theme */
+  .sunset {
+    --background: 20 50% 8%;
+    --foreground: 35 100% 95%;
+    --card: 20 40% 12%;
+    --card-foreground: 35 100% 95%;
+    --popover: 20 40% 12%;
+    --popover-foreground: 35 100% 95%;
+    --primary: 25 100% 55%;
+    --primary-foreground: 20 50% 8%;
+    --secondary: 20 30% 18%;
+    --secondary-foreground: 35 100% 95%;
+    --muted: 20 25% 20%;
+    --muted-foreground: 35 40% 55%;
+    --accent: 340 90% 55%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 20 30% 25%;
+    --input: 20 30% 25%;
+    --ring: 25 100% 55%;
+    --correct: 45 100% 50%;
+    --incorrect: 0 84% 60%;
+    --neon-purple: 340 90% 55%;
+    --neon-cyan: 35 100% 60%;
+    --neon-pink: 350 100% 60%;
+    --neon-green: 45 100% 50%;
+    --neon-orange: 25 100% 55%;
+    --neon-yellow: 45 100% 55%;
+    --gradient-primary: linear-gradient(135deg, hsl(25, 100%, 55%), hsl(340, 90%, 55%));
+    --gradient-accent: linear-gradient(135deg, hsl(45, 100%, 50%), hsl(25, 100%, 55%));
+    --shadow-neon: 0 0 30px hsl(25, 100%, 55%, 0.5);
+    --shadow-glow: 0 0 60px hsl(340, 90%, 55%, 0.3);
+  }
+
+  /* Retro/Synthwave Theme */
+  .retro {
+    --background: 270 50% 8%;
+    --foreground: 300 100% 90%;
+    --card: 270 40% 12%;
+    --card-foreground: 300 100% 90%;
+    --popover: 270 40% 12%;
+    --popover-foreground: 300 100% 90%;
+    --primary: 320 100% 60%;
+    --primary-foreground: 270 50% 8%;
+    --secondary: 270 30% 18%;
+    --secondary-foreground: 300 100% 90%;
+    --muted: 270 25% 20%;
+    --muted-foreground: 300 40% 55%;
+    --accent: 180 100% 50%;
+    --accent-foreground: 270 50% 8%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 270 30% 25%;
+    --input: 270 30% 25%;
+    --ring: 320 100% 60%;
+    --correct: 180 100% 50%;
+    --incorrect: 0 84% 60%;
+    --neon-purple: 280 100% 65%;
+    --neon-cyan: 180 100% 50%;
+    --neon-pink: 320 100% 60%;
+    --neon-green: 180 100% 45%;
+    --neon-orange: 35 100% 55%;
+    --neon-yellow: 55 100% 55%;
+    --gradient-primary: linear-gradient(135deg, hsl(320, 100%, 60%), hsl(280, 100%, 65%));
+    --gradient-accent: linear-gradient(135deg, hsl(180, 100%, 50%), hsl(200, 100%, 60%));
+    --shadow-neon: 0 0 30px hsl(320, 100%, 60%, 0.5);
+    --shadow-glow: 0 0 60px hsl(280, 100%, 65%, 0.3);
+  }
 }
 
 @layer base {

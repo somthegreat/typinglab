@@ -8,6 +8,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import WeakKeysDisplay from '@/components/WeakKeysDisplay';
 
 const Stats: React.FC = () => {
   const { user } = useAuth();
@@ -90,7 +91,10 @@ const Stats: React.FC = () => {
               </div>
             </div>
 
-            {chartData.length > 0 ? (
+            {/* Weak Keys Section */}
+            <div className="mb-8">
+              <WeakKeysDisplay />
+            </div>
               <div className="space-y-8">
                 <div className="glass-card rounded-xl p-6">
                   <h3 className="text-lg font-semibold mb-4">WPM Progress</h3>

@@ -3,11 +3,13 @@ import { useTypingTest, TypingStats } from '@/hooks/useTypingTest';
 import { generateRandomWords } from '@/data/words';
 import { getRandomQuote } from '@/data/quotes';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Clock, Hash, Quote, FileText } from 'lucide-react';
+import { RefreshCw, Clock, Hash, Quote, FileText, Keyboard, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import TestResults from './TestResults';
+import VirtualKeyboard from './VirtualKeyboard';
 import { useSaveTestResult } from '@/hooks/useTestResults';
 import { useCheckAchievements } from '@/hooks/useAchievements';
+import { useUpdateWeakKeys } from '@/hooks/useWeakKeys';
 import { useAuth } from '@/contexts/AuthContext';
 
 type TestMode = 'time' | 'words' | 'quote' | 'custom';
@@ -22,11 +24,14 @@ const TypingTest: React.FC = () => {
   const [customText, setCustomText] = useState('');
   const [showResults, setShowResults] = useState(false);
   const [finalStats, setFinalStats] = useState<TypingStats | null>(null);
+  const [showKeyboard, setShowKeyboard] = useState(true);
+  const [pressedKey, setPressedKey] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   
   const { user } = useAuth();
   const saveTestResult = useSaveTestResult();
   const checkAchievements = useCheckAchievements();
+  const updateWeakKeys = useUpdateWeakKeys();
 
   const getTestText = () => {
     switch (mode) {
@@ -49,6 +54,21 @@ const TypingTest: React.FC = () => {
         textContent: text,
       });
       await checkAchievements.mutateAsync({ wpm: stats.wpm, accuracy: stats.accuracy });
+      
+      // Track weak keys
+      const keyErrors = new Map<string, { errors: number; total: number }>();
+      targetText.split('').forEach((char, index) => {
+        const lowerChar = char.toLowerCase();
+        if (!keyErrors.has(lowerChar)) {
+          keyErrors.set(lowerChar, { errors: 0, total: 0 });
+        }
+        const current = keyErrors.get(lowerChar)!;
+        current.total++;
+        if (errors.has(index)) {
+          current.errors++;
+        }
+      });
+      await updateWeakKeys.mutateAsync(keyErrors);
     }
   };
 
@@ -77,12 +97,18 @@ const TypingTest: React.FC = () => {
     inputRef.current?.focus();
   };
 
+  const handleKeyDownWrapper = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    setPressedKey(e.key);
+    handleKeyDown(e);
+    setTimeout(() => setPressedKey(null), 100);
+  };
+
   if (showResults && finalStats) {
     return <TestResults stats={finalStats} onRetry={handleRetry} onNewTest={refreshText} />;
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-5xl mx-auto px-4 py-8">
       {/* Mode Selection */}
       <div className="flex flex-wrap items-center justify-center gap-4 mb-8">
         <div className="flex items-center gap-2 glass-card rounded-full p-1">
@@ -124,6 +150,16 @@ const TypingTest: React.FC = () => {
             ))}
           </div>
         )}
+
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setShowKeyboard(!showKeyboard)}
+          className="gap-2"
+        >
+          {showKeyboard ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          <Keyboard className="w-4 h-4" />
+        </Button>
       </div>
 
       {mode === 'custom' && (
@@ -159,7 +195,7 @@ const TypingTest: React.FC = () => {
           ref={inputRef}
           type="text"
           className="absolute opacity-0 pointer-events-none"
-          onKeyDown={handleKeyDown}
+          onKeyDown={handleKeyDownWrapper}
           autoFocus
         />
         
@@ -185,6 +221,19 @@ const TypingTest: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Virtual Keyboard */}
+      {showKeyboard && (
+        <div className="mb-6">
+          <VirtualKeyboard 
+            currentKey={targetText[currentIndex] || ''} 
+            pressedKey={pressedKey}
+            errors={errors}
+            targetText={targetText}
+            currentIndex={currentIndex}
+          />
+        </div>
+      )}
 
       {/* Refresh Button */}
       <div className="flex justify-center">

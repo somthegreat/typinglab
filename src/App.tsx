@@ -12,6 +12,7 @@ import Auth from "./pages/Auth";
 import Lessons from "./pages/Lessons";
 import Stats from "./pages/Stats";
 import Achievements from "./pages/Achievements";
+import Leaderboard from "./pages/Leaderboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
                 <Route path="/lessons" element={<Lessons />} />
                 <Route path="/stats" element={<Stats />} />
                 <Route path="/achievements" element={<Achievements />} />
+                <Route path="/leaderboard" element={<Leaderboard />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
