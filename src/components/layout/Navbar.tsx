@@ -1,22 +1,22 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Keyboard, User, BarChart3, Trophy, BookOpen, Moon, Sun, Volume2, VolumeX, LogOut } from 'lucide-react';
+import { Keyboard, User, BarChart3, Trophy, BookOpen, Volume2, VolumeX, LogOut, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useSound } from '@/contexts/SoundContext';
 import { cn } from '@/lib/utils';
+import ThemeSelector from '@/components/ThemeSelector';
 
 const Navbar: React.FC = () => {
   const location = useLocation();
   const { user, signOut } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const { soundEnabled, toggleSound } = useSound();
 
   const navLinks = [
     { to: '/test', label: 'Type', icon: Keyboard },
     { to: '/lessons', label: 'Learn', icon: BookOpen },
     { to: '/stats', label: 'Stats', icon: BarChart3 },
+    { to: '/leaderboard', label: 'Ranks', icon: Crown },
     { to: '/achievements', label: 'Achievements', icon: Trophy },
   ];
 
@@ -27,7 +27,7 @@ const Navbar: React.FC = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center neon-glow group-hover:scale-105 transition-transform">
-              <Keyboard className="w-5 h-5 text-white" />
+              <Keyboard className="w-5 h-5 text-primary-foreground" />
             </div>
             <span className="text-xl font-bold gradient-text hidden sm:block">TypingMaster</span>
           </Link>
@@ -61,14 +61,7 @@ const Navbar: React.FC = () => {
               {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
             </Button>
 
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </Button>
+            <ThemeSelector />
 
             {user ? (
               <div className="flex items-center gap-2">
