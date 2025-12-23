@@ -1,21 +1,21 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Keyboard, BookOpen, BarChart3, Trophy, Home } from 'lucide-react';
+import { Keyboard, BookOpen, BarChart3, Users, Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const MobileNav: React.FC = () => {
+const MobileNav = forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>((props, ref) => {
   const location = useLocation();
 
   const navLinks = [
-    { to: '/', label: 'Home', icon: Home },
     { to: '/test', label: 'Type', icon: Keyboard },
+    { to: '/race', label: 'Race', icon: Users },
+    { to: '/practice', label: 'Practice', icon: Target },
     { to: '/lessons', label: 'Learn', icon: BookOpen },
     { to: '/stats', label: 'Stats', icon: BarChart3 },
-    { to: '/achievements', label: 'Awards', icon: Trophy },
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass-card border-t border-border/50">
+    <nav ref={ref} className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass-card border-t border-border/50" {...props}>
       <div className="flex items-center justify-around h-16 px-2">
         {navLinks.map(({ to, label, icon: Icon }) => (
           <Link
@@ -35,6 +35,8 @@ const MobileNav: React.FC = () => {
       </div>
     </nav>
   );
-};
+});
+
+MobileNav.displayName = 'MobileNav';
 
 export default MobileNav;
