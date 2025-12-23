@@ -6,11 +6,13 @@ import { Button } from '@/components/ui/button';
 import { RefreshCw, Clock, Hash, Quote, FileText, Keyboard, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import TestResults from './TestResults';
-import VirtualKeyboard from './VirtualKeyboard';
+import VirtualKeyboard, { KeyboardLayout } from './VirtualKeyboard';
+import KeyboardLayoutSelector from '@/components/KeyboardLayoutSelector';
 import { useSaveTestResult } from '@/hooks/useTestResults';
 import { useCheckAchievements } from '@/hooks/useAchievements';
 import { useUpdateWeakKeys } from '@/hooks/useWeakKeys';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSound } from '@/contexts/SoundContext';
 
 type TestMode = 'time' | 'words' | 'quote' | 'custom';
 type TimeOption = 15 | 30 | 60 | 120;
@@ -26,13 +28,14 @@ const TypingTest: React.FC = () => {
   const [finalStats, setFinalStats] = useState<TypingStats | null>(null);
   const [showKeyboard, setShowKeyboard] = useState(true);
   const [pressedKey, setPressedKey] = useState<string | null>(null);
+  const [keyboardLayout, setKeyboardLayout] = useState<KeyboardLayout>('qwerty');
   const inputRef = useRef<HTMLInputElement>(null);
   
   const { user } = useAuth();
   const saveTestResult = useSaveTestResult();
   const checkAchievements = useCheckAchievements();
   const updateWeakKeys = useUpdateWeakKeys();
-
+  const { playKeySound, playErrorSound, playSuccessSound } = useSound();
   const getTestText = () => {
     switch (mode) {
       case 'quote': return getRandomQuote().text;
@@ -99,6 +102,17 @@ const TypingTest: React.FC = () => {
 
   const handleKeyDownWrapper = (e: React.KeyboardEvent<HTMLInputElement>) => {
     setPressedKey(e.key);
+    
+    // Play sound based on correctness
+    if (e.key.length === 1) {
+      const expectedChar = targetText[currentIndex];
+      if (e.key === expectedChar) {
+        playKeySound();
+      } else {
+        playErrorSound();
+      }
+    }
+    
     handleKeyDown(e);
     setTimeout(() => setPressedKey(null), 100);
   };
@@ -160,6 +174,8 @@ const TypingTest: React.FC = () => {
           {showKeyboard ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           <Keyboard className="w-4 h-4" />
         </Button>
+
+        <KeyboardLayoutSelector layout={keyboardLayout} onLayoutChange={setKeyboardLayout} />
       </div>
 
       {mode === 'custom' && (
@@ -222,7 +238,6 @@ const TypingTest: React.FC = () => {
         )}
       </div>
 
-      {/* Virtual Keyboard */}
       {showKeyboard && (
         <div className="mb-6">
           <VirtualKeyboard 
@@ -231,6 +246,7 @@ const TypingTest: React.FC = () => {
             errors={errors}
             targetText={targetText}
             currentIndex={currentIndex}
+            layout={keyboardLayout}
           />
         </div>
       )}

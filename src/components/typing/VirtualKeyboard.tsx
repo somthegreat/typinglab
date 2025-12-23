@@ -1,21 +1,40 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 
+export type KeyboardLayout = 'qwerty' | 'dvorak' | 'colemak';
+
 interface VirtualKeyboardProps {
   currentKey: string;
   pressedKey: string | null;
   errors: Set<number>;
   targetText: string;
   currentIndex: number;
+  layout?: KeyboardLayout;
 }
 
-const keyboardLayout = [
-  ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='],
-  ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\\'],
-  ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', "'"],
-  ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'],
-  [' '],
-];
+const keyboardLayouts: Record<KeyboardLayout, string[][]> = {
+  qwerty: [
+    ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='],
+    ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\\'],
+    ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', "'"],
+    ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'],
+    [' '],
+  ],
+  dvorak: [
+    ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '[', ']'],
+    ["'", ',', '.', 'p', 'y', 'f', 'g', 'c', 'r', 'l', '/', '=', '\\'],
+    ['a', 'o', 'e', 'u', 'i', 'd', 'h', 't', 'n', 's', '-'],
+    [';', 'q', 'j', 'k', 'x', 'b', 'm', 'w', 'v', 'z'],
+    [' '],
+  ],
+  colemak: [
+    ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='],
+    ['q', 'w', 'f', 'p', 'g', 'j', 'l', 'u', 'y', ';', '[', ']', '\\'],
+    ['a', 'r', 's', 't', 'd', 'h', 'n', 'e', 'i', 'o', "'"],
+    ['z', 'x', 'c', 'v', 'b', 'k', 'm', ',', '.', '/'],
+    [' '],
+  ],
+};
 
 // Finger assignment: 0=pinky, 1=ring, 2=middle, 3=index (left), 4=index (right), 5=middle, 6=ring, 7=pinky
 const fingerColors: Record<number, string> = {
@@ -27,16 +46,19 @@ const fingerColors: Record<number, string> = {
   5: 'bg-neon-purple/20 border-neon-purple/40',
 };
 
-const keyToFinger: Record<string, number> = {
-  '`': 0, '1': 0, 'q': 0, 'a': 0, 'z': 0,
-  '2': 1, 'w': 1, 's': 1, 'x': 1,
-  '3': 2, 'e': 2, 'd': 2, 'c': 2,
-  '4': 3, '5': 3, 'r': 3, 't': 3, 'f': 3, 'g': 3, 'v': 3, 'b': 3,
-  '6': 4, '7': 4, 'y': 4, 'u': 4, 'h': 4, 'j': 4, 'n': 4, 'm': 4,
-  '8': 5, 'i': 5, 'k': 5, ',': 5,
-  '9': 6, 'o': 6, 'l': 6, '.': 6,
-  '0': 7, '-': 7, '=': 7, 'p': 7, ';': 7, "'": 7, '[': 7, ']': 7, '\\': 7, '/': 7,
-  ' ': 3, // Thumbs for space
+const getFingerForKey = (key: string, rowIndex: number, keyIndex: number): number => {
+  // Special case for space bar
+  if (key === ' ') return 3;
+  
+  // Number row and below follow column position
+  if (keyIndex <= 1) return 0; // pinky
+  if (keyIndex === 2) return 1; // ring
+  if (keyIndex === 3) return 2; // middle
+  if (keyIndex <= 5) return 3; // left index
+  if (keyIndex <= 7) return 4; // right index
+  if (keyIndex === 8) return 5; // middle
+  if (keyIndex === 9) return 6; // ring
+  return 7; // pinky
 };
 
 const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({ 
@@ -44,17 +66,19 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
   pressedKey, 
   errors, 
   targetText, 
-  currentIndex 
+  currentIndex,
+  layout = 'qwerty'
 }) => {
+  const keyboardLayout = keyboardLayouts[layout];
   const expectedChar = targetText[currentIndex]?.toLowerCase() || '';
   const lastTypedCorrect = currentIndex > 0 && !errors.has(currentIndex - 1);
   const lastTypedIncorrect = currentIndex > 0 && errors.has(currentIndex - 1);
   
-  const getKeyClass = (key: string) => {
+  const getKeyClass = (key: string, rowIndex: number, keyIndex: number) => {
     const normalizedKey = key.toLowerCase();
     const isCurrentKey = expectedChar === normalizedKey || (expectedChar === ' ' && key === ' ');
     const isPressed = pressedKey?.toLowerCase() === normalizedKey;
-    const finger = keyToFinger[normalizedKey] ?? 0;
+    const finger = getFingerForKey(normalizedKey, rowIndex, keyIndex);
     
     if (isPressed && lastTypedIncorrect) {
       return 'bg-destructive text-destructive-foreground scale-95 shadow-lg';
@@ -63,7 +87,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
       return 'bg-correct text-primary-foreground scale-95 shadow-lg';
     }
     if (isCurrentKey) {
-      return `${fingerColors[finger]} border-2 animate-pulse scale-105`;
+      return `${fingerColors[Math.min(finger, 5)]} border-2 animate-pulse scale-105`;
     }
     return 'bg-secondary text-secondary-foreground border border-border';
   };
@@ -78,15 +102,15 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
     <div className="flex flex-col items-center gap-1.5 p-4 glass-card rounded-xl">
       {keyboardLayout.map((row, rowIndex) => (
         <div key={rowIndex} className="flex gap-1.5 justify-center">
-          {row.map((key) => (
+          {row.map((key, keyIndex) => (
             <div
-              key={key}
+              key={`${rowIndex}-${keyIndex}`}
               className={cn(
                 'flex items-center justify-center h-10 md:h-12 rounded-lg',
                 'font-mono text-sm font-medium transition-all duration-100',
                 'shadow-md',
                 getKeyWidth(key),
-                getKeyClass(key)
+                getKeyClass(key, rowIndex, keyIndex)
               )}
             >
               {key === ' ' ? 'SPACE' : key.toUpperCase()}

@@ -2,10 +2,14 @@ import React, { createContext, useContext, useState, useCallback } from 'react';
 
 interface SoundContextType {
   soundEnabled: boolean;
+  volume: number;
   toggleSound: () => void;
+  setVolume: (volume: number) => void;
   playKeySound: () => void;
   playErrorSound: () => void;
   playSuccessSound: () => void;
+  playCountdownSound: () => void;
+  playRaceStartSound: () => void;
 }
 
 const SoundContext = createContext<SoundContextType | undefined>(undefined);
@@ -15,6 +19,11 @@ const audioContext = typeof window !== 'undefined' ? new (window.AudioContext ||
 
 const playTone = (frequency: number, duration: number, type: OscillatorType = 'sine', volume: number = 0.1) => {
   if (!audioContext) return;
+  
+  // Resume audio context if it's suspended (autoplay policy)
+  if (audioContext.state === 'suspended') {
+    audioContext.resume();
+  }
   
   const oscillator = audioContext.createOscillator();
   const gainNode = audioContext.createGain();
@@ -36,6 +45,11 @@ export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const saved = localStorage.getItem('typing-sound');
     return saved !== 'false';
   });
+  
+  const [volume, setVolumeState] = useState(() => {
+    const saved = localStorage.getItem('typing-volume');
+    return saved ? parseFloat(saved) : 0.5;
+  });
 
   const toggleSound = () => {
     setSoundEnabled(prev => {
@@ -45,25 +59,50 @@ export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     });
   };
 
+  const setVolume = (newVolume: number) => {
+    setVolumeState(newVolume);
+    localStorage.setItem('typing-volume', String(newVolume));
+  };
+
   const playKeySound = useCallback(() => {
     if (!soundEnabled) return;
-    playTone(800, 0.05, 'square', 0.05);
-  }, [soundEnabled]);
+    playTone(800, 0.05, 'square', 0.05 * volume);
+  }, [soundEnabled, volume]);
 
   const playErrorSound = useCallback(() => {
     if (!soundEnabled) return;
-    playTone(200, 0.15, 'sawtooth', 0.08);
-  }, [soundEnabled]);
+    playTone(200, 0.15, 'sawtooth', 0.08 * volume);
+  }, [soundEnabled, volume]);
 
   const playSuccessSound = useCallback(() => {
     if (!soundEnabled) return;
-    playTone(523, 0.1, 'sine', 0.1);
-    setTimeout(() => playTone(659, 0.1, 'sine', 0.1), 100);
-    setTimeout(() => playTone(784, 0.2, 'sine', 0.1), 200);
-  }, [soundEnabled]);
+    playTone(523, 0.1, 'sine', 0.1 * volume);
+    setTimeout(() => playTone(659, 0.1, 'sine', 0.1 * volume), 100);
+    setTimeout(() => playTone(784, 0.2, 'sine', 0.1 * volume), 200);
+  }, [soundEnabled, volume]);
+
+  const playCountdownSound = useCallback(() => {
+    if (!soundEnabled) return;
+    playTone(440, 0.15, 'sine', 0.15 * volume);
+  }, [soundEnabled, volume]);
+
+  const playRaceStartSound = useCallback(() => {
+    if (!soundEnabled) return;
+    playTone(880, 0.3, 'sine', 0.2 * volume);
+  }, [soundEnabled, volume]);
 
   return (
-    <SoundContext.Provider value={{ soundEnabled, toggleSound, playKeySound, playErrorSound, playSuccessSound }}>
+    <SoundContext.Provider value={{ 
+      soundEnabled, 
+      volume, 
+      toggleSound, 
+      setVolume, 
+      playKeySound, 
+      playErrorSound, 
+      playSuccessSound,
+      playCountdownSound,
+      playRaceStartSound
+    }}>
       {children}
     </SoundContext.Provider>
   );

@@ -13,6 +13,8 @@ import Lessons from "./pages/Lessons";
 import Stats from "./pages/Stats";
 import Achievements from "./pages/Achievements";
 import Leaderboard from "./pages/Leaderboard";
+import Race from "./pages/Race";
+import Practice from "./pages/Practice";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +36,8 @@ const App = () => (
                 <Route path="/stats" element={<Stats />} />
                 <Route path="/achievements" element={<Achievements />} />
                 <Route path="/leaderboard" element={<Leaderboard />} />
+                <Route path="/race" element={<Race />} />
+                <Route path="/practice" element={<Practice />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
