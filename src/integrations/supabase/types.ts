@@ -187,6 +187,86 @@ export type Database = {
         }
         Relationships: []
       }
+      race_participants: {
+        Row: {
+          accuracy: number | null
+          created_at: string
+          finished_at: string | null
+          id: string
+          position: number | null
+          progress: number | null
+          race_id: string
+          user_id: string
+          username: string | null
+          wpm: number | null
+        }
+        Insert: {
+          accuracy?: number | null
+          created_at?: string
+          finished_at?: string | null
+          id?: string
+          position?: number | null
+          progress?: number | null
+          race_id: string
+          user_id: string
+          username?: string | null
+          wpm?: number | null
+        }
+        Update: {
+          accuracy?: number | null
+          created_at?: string
+          finished_at?: string | null
+          id?: string
+          position?: number | null
+          progress?: number | null
+          race_id?: string
+          user_id?: string
+          username?: string | null
+          wpm?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "race_participants_race_id_fkey"
+            columns: ["race_id"]
+            isOneToOne: false
+            referencedRelation: "races"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      races: {
+        Row: {
+          created_at: string
+          finished_at: string | null
+          host_id: string
+          id: string
+          max_players: number | null
+          started_at: string | null
+          status: string
+          text_content: string
+        }
+        Insert: {
+          created_at?: string
+          finished_at?: string | null
+          host_id: string
+          id?: string
+          max_players?: number | null
+          started_at?: string | null
+          status?: string
+          text_content: string
+        }
+        Update: {
+          created_at?: string
+          finished_at?: string | null
+          host_id?: string
+          id?: string
+          max_players?: number | null
+          started_at?: string | null
+          status?: string
+          text_content?: string
+        }
+        Relationships: []
+      }
       test_results: {
         Row: {
           accuracy: number

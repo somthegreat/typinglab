@@ -1,23 +1,24 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Keyboard, User, BarChart3, Trophy, BookOpen, Volume2, VolumeX, LogOut, Crown } from 'lucide-react';
+import { Keyboard, User, BarChart3, Trophy, BookOpen, LogOut, Crown, Users, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSound } from '@/contexts/SoundContext';
 import { cn } from '@/lib/utils';
 import ThemeSelector from '@/components/ThemeSelector';
+import SoundSettings from '@/components/SoundSettings';
 
 const Navbar: React.FC = () => {
   const location = useLocation();
   const { user, signOut } = useAuth();
-  const { soundEnabled, toggleSound } = useSound();
 
   const navLinks = [
     { to: '/test', label: 'Type', icon: Keyboard },
+    { to: '/race', label: 'Race', icon: Users },
+    { to: '/practice', label: 'Practice', icon: Target },
     { to: '/lessons', label: 'Learn', icon: BookOpen },
     { to: '/stats', label: 'Stats', icon: BarChart3 },
     { to: '/leaderboard', label: 'Ranks', icon: Crown },
-    { to: '/achievements', label: 'Achievements', icon: Trophy },
+    { to: '/achievements', label: 'Awards', icon: Trophy },
   ];
 
   return (
@@ -38,8 +39,9 @@ const Navbar: React.FC = () => {
               <Link key={to} to={to}>
                 <Button
                   variant="ghost"
+                  size="sm"
                   className={cn(
-                    "gap-2 transition-all",
+                    "gap-1.5 transition-all",
                     location.pathname === to && "bg-primary/10 text-primary"
                   )}
                 >
@@ -52,15 +54,7 @@ const Navbar: React.FC = () => {
 
           {/* Right Side */}
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleSound}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
-            </Button>
-
+            <SoundSettings />
             <ThemeSelector />
 
             {user ? (
