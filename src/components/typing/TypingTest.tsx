@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import TestResults from './TestResults';
 import VirtualKeyboard, { KeyboardLayout } from './VirtualKeyboard';
 import KeyboardLayoutSelector from '@/components/KeyboardLayoutSelector';
+import TextSettings, { FontSize, LineHeight, getFontSizeClass, getLineHeightClass } from '@/components/TextSettings';
 import { useSaveTestResult } from '@/hooks/useTestResults';
 import { useCheckAchievements } from '@/hooks/useAchievements';
 import { useUpdateWeakKeys } from '@/hooks/useWeakKeys';
@@ -26,9 +27,11 @@ const TypingTest: React.FC = () => {
   const [customText, setCustomText] = useState('');
   const [showResults, setShowResults] = useState(false);
   const [finalStats, setFinalStats] = useState<TypingStats | null>(null);
-  const [showKeyboard, setShowKeyboard] = useState(true);
+  const [showKeyboard, setShowKeyboard] = useState(false);
   const [pressedKey, setPressedKey] = useState<string | null>(null);
   const [keyboardLayout, setKeyboardLayout] = useState<KeyboardLayout>('qwerty');
+  const [fontSize, setFontSize] = useState<FontSize>('medium');
+  const [lineHeight, setLineHeight] = useState<LineHeight>('relaxed');
   const inputRef = useRef<HTMLInputElement>(null);
   
   const { user } = useAuth();
@@ -176,6 +179,13 @@ const TypingTest: React.FC = () => {
         </Button>
 
         <KeyboardLayoutSelector layout={keyboardLayout} onLayoutChange={setKeyboardLayout} />
+
+        <TextSettings
+          fontSize={fontSize}
+          lineHeight={lineHeight}
+          onFontSizeChange={setFontSize}
+          onLineHeightChange={setLineHeight}
+        />
       </div>
 
       {mode === 'custom' && (
@@ -215,7 +225,7 @@ const TypingTest: React.FC = () => {
           autoFocus
         />
         
-        <div className="typing-text leading-loose">
+        <div className={cn("font-mono tracking-wide", getFontSizeClass(fontSize), getLineHeightClass(lineHeight))}>
           {targetText.split('').map((char, index) => {
             let className = 'char-untyped';
             if (index < currentIndex) {

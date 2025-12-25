@@ -7,11 +7,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Palette, Sun, Moon, Leaf, Waves, Sunset, Sparkles } from 'lucide-react';
+import { Palette, Sun, Moon, Leaf, Waves, Sunset, Sparkles, Snowflake, Ghost, Code } from 'lucide-react';
 
 const themeOptions: { value: ColorTheme; label: string; icon: React.ReactNode; color: string }[] = [
   { value: 'light', label: 'Light', icon: <Sun className="w-4 h-4" />, color: 'text-yellow-500' },
   { value: 'dark', label: 'Dark', icon: <Moon className="w-4 h-4" />, color: 'text-purple-500' },
+  { value: 'nord', label: 'Nord', icon: <Snowflake className="w-4 h-4" />, color: 'text-cyan-400' },
+  { value: 'dracula', label: 'Dracula', icon: <Ghost className="w-4 h-4" />, color: 'text-purple-400' },
+  { value: 'monokai', label: 'Monokai', icon: <Code className="w-4 h-4" />, color: 'text-lime-400' },
   { value: 'matrix', label: 'Matrix', icon: <Leaf className="w-4 h-4" />, color: 'text-green-500' },
   { value: 'ocean', label: 'Ocean', icon: <Waves className="w-4 h-4" />, color: 'text-blue-500' },
   { value: 'sunset', label: 'Sunset', icon: <Sunset className="w-4 h-4" />, color: 'text-orange-500' },
@@ -20,7 +23,6 @@ const themeOptions: { value: ColorTheme; label: string; icon: React.ReactNode; c
 
 const ThemeSelector: React.FC = () => {
   const { theme, setTheme } = useTheme();
-  const currentTheme = themeOptions.find(t => t.value === theme);
 
   return (
     <DropdownMenu>
