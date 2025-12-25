@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-export type ColorTheme = 'light' | 'dark' | 'matrix' | 'ocean' | 'sunset' | 'retro';
+export type ColorTheme = 'light' | 'dark' | 'matrix' | 'ocean' | 'sunset' | 'retro' | 'nord' | 'dracula' | 'monokai';
 
 interface ThemeContextType {
   theme: ColorTheme;
@@ -10,7 +10,7 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const themeClasses: ColorTheme[] = ['light', 'dark', 'matrix', 'ocean', 'sunset', 'retro'];
+const themeClasses: ColorTheme[] = ['light', 'dark', 'matrix', 'ocean', 'sunset', 'retro', 'nord', 'dracula', 'monokai'];
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<ColorTheme>('dark');

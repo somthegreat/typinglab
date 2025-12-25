@@ -47,6 +47,77 @@ export type Database = {
         }
         Relationships: []
       }
+      challenge_completions: {
+        Row: {
+          accuracy: number
+          challenge_id: string
+          completed_at: string
+          id: string
+          points_earned: number
+          user_id: string
+          wpm: number
+        }
+        Insert: {
+          accuracy: number
+          challenge_id: string
+          completed_at?: string
+          id?: string
+          points_earned?: number
+          user_id: string
+          wpm: number
+        }
+        Update: {
+          accuracy?: number
+          challenge_id?: string
+          completed_at?: string
+          id?: string
+          points_earned?: number
+          user_id?: string
+          wpm?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_completions_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "daily_challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      daily_challenges: {
+        Row: {
+          challenge_date: string
+          challenge_type: string
+          created_at: string
+          id: string
+          reward_points: number
+          target_accuracy: number
+          target_wpm: number
+          text_content: string
+        }
+        Insert: {
+          challenge_date: string
+          challenge_type?: string
+          created_at?: string
+          id?: string
+          reward_points?: number
+          target_accuracy?: number
+          target_wpm?: number
+          text_content: string
+        }
+        Update: {
+          challenge_date?: string
+          challenge_type?: string
+          created_at?: string
+          id?: string
+          reward_points?: number
+          target_accuracy?: number
+          target_wpm?: number
+          text_content?: string
+        }
+        Relationships: []
+      }
       lesson_progress: {
         Row: {
           attempts: number | null
@@ -140,8 +211,10 @@ export type Database = {
           best_wpm: number | null
           created_at: string | null
           current_streak: number | null
+          font_size: string | null
           id: string
           last_practice_date: string | null
+          line_height: string | null
           longest_streak: number | null
           sound_enabled: boolean | null
           theme: string | null
@@ -157,8 +230,10 @@ export type Database = {
           best_wpm?: number | null
           created_at?: string | null
           current_streak?: number | null
+          font_size?: string | null
           id?: string
           last_practice_date?: string | null
+          line_height?: string | null
           longest_streak?: number | null
           sound_enabled?: boolean | null
           theme?: string | null
@@ -174,8 +249,10 @@ export type Database = {
           best_wpm?: number | null
           created_at?: string | null
           current_streak?: number | null
+          font_size?: string | null
           id?: string
           last_practice_date?: string | null
+          line_height?: string | null
           longest_streak?: number | null
           sound_enabled?: boolean | null
           theme?: string | null

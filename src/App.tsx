@@ -15,6 +15,8 @@ import Achievements from "./pages/Achievements";
 import Leaderboard from "./pages/Leaderboard";
 import Race from "./pages/Race";
 import Practice from "./pages/Practice";
+import Profile from "./pages/Profile";
+import DailyChallenge from "./pages/DailyChallenge";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +40,8 @@ const App = () => (
                 <Route path="/leaderboard" element={<Leaderboard />} />
                 <Route path="/race" element={<Race />} />
                 <Route path="/practice" element={<Practice />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/challenge" element={<DailyChallenge />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

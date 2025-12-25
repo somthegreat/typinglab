@@ -16,6 +16,10 @@ export interface Profile {
   last_practice_date: string | null;
   theme: string | null;
   sound_enabled: boolean | null;
+  created_at: string | null;
+  updated_at: string | null;
+  font_size: string | null;
+  line_height: string | null;
 }
 
 export const useProfile = () => {

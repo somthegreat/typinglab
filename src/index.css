@@ -222,6 +222,111 @@
     --shadow-neon: 0 0 30px hsl(320, 100%, 60%, 0.5);
     --shadow-glow: 0 0 60px hsl(280, 100%, 65%, 0.3);
   }
+
+  /* Nord Theme */
+  .nord {
+    --background: 220 16% 14%;
+    --foreground: 218 27% 92%;
+    --card: 220 16% 18%;
+    --card-foreground: 218 27% 92%;
+    --popover: 220 16% 18%;
+    --popover-foreground: 218 27% 92%;
+    --primary: 193 43% 67%;
+    --primary-foreground: 220 16% 14%;
+    --secondary: 220 16% 22%;
+    --secondary-foreground: 218 27% 92%;
+    --muted: 220 16% 25%;
+    --muted-foreground: 218 20% 65%;
+    --accent: 179 25% 65%;
+    --accent-foreground: 220 16% 14%;
+    --destructive: 354 42% 56%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 16% 28%;
+    --input: 220 16% 28%;
+    --ring: 193 43% 67%;
+    --correct: 92 28% 65%;
+    --incorrect: 354 42% 56%;
+    --neon-purple: 311 20% 63%;
+    --neon-cyan: 193 43% 67%;
+    --neon-pink: 311 20% 63%;
+    --neon-green: 92 28% 65%;
+    --neon-orange: 14 51% 63%;
+    --neon-yellow: 40 71% 73%;
+    --gradient-primary: linear-gradient(135deg, hsl(193, 43%, 67%), hsl(179, 25%, 65%));
+    --gradient-accent: linear-gradient(135deg, hsl(92, 28%, 65%), hsl(179, 25%, 65%));
+    --shadow-neon: 0 0 30px hsl(193, 43%, 67%, 0.4);
+    --shadow-glow: 0 0 60px hsl(179, 25%, 65%, 0.3);
+  }
+
+  /* Dracula Theme */
+  .dracula {
+    --background: 231 15% 18%;
+    --foreground: 60 30% 96%;
+    --card: 232 14% 22%;
+    --card-foreground: 60 30% 96%;
+    --popover: 232 14% 22%;
+    --popover-foreground: 60 30% 96%;
+    --primary: 265 89% 78%;
+    --primary-foreground: 231 15% 18%;
+    --secondary: 232 14% 26%;
+    --secondary-foreground: 60 30% 96%;
+    --muted: 232 14% 30%;
+    --muted-foreground: 225 15% 65%;
+    --accent: 135 94% 65%;
+    --accent-foreground: 231 15% 18%;
+    --destructive: 0 100% 67%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 232 14% 32%;
+    --input: 232 14% 32%;
+    --ring: 265 89% 78%;
+    --correct: 135 94% 65%;
+    --incorrect: 0 100% 67%;
+    --neon-purple: 265 89% 78%;
+    --neon-cyan: 191 97% 77%;
+    --neon-pink: 326 100% 74%;
+    --neon-green: 135 94% 65%;
+    --neon-orange: 31 100% 71%;
+    --neon-yellow: 65 92% 76%;
+    --gradient-primary: linear-gradient(135deg, hsl(265, 89%, 78%), hsl(326, 100%, 74%));
+    --gradient-accent: linear-gradient(135deg, hsl(135, 94%, 65%), hsl(191, 97%, 77%));
+    --shadow-neon: 0 0 30px hsl(265, 89%, 78%, 0.5);
+    --shadow-glow: 0 0 60px hsl(326, 100%, 74%, 0.3);
+  }
+
+  /* Monokai Theme */
+  .monokai {
+    --background: 70 8% 15%;
+    --foreground: 60 17% 90%;
+    --card: 70 8% 18%;
+    --card-foreground: 60 17% 90%;
+    --popover: 70 8% 18%;
+    --popover-foreground: 60 17% 90%;
+    --primary: 80 76% 53%;
+    --primary-foreground: 70 8% 15%;
+    --secondary: 70 8% 22%;
+    --secondary-foreground: 60 17% 90%;
+    --muted: 70 8% 26%;
+    --muted-foreground: 55 10% 60%;
+    --accent: 338 95% 56%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 338 95% 56%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 70 8% 28%;
+    --input: 70 8% 28%;
+    --ring: 80 76% 53%;
+    --correct: 80 76% 53%;
+    --incorrect: 338 95% 56%;
+    --neon-purple: 261 100% 75%;
+    --neon-cyan: 190 81% 67%;
+    --neon-pink: 338 95% 56%;
+    --neon-green: 80 76% 53%;
+    --neon-orange: 32 98% 56%;
+    --neon-yellow: 54 70% 68%;
+    --gradient-primary: linear-gradient(135deg, hsl(80, 76%, 53%), hsl(54, 70%, 68%));
+    --gradient-accent: linear-gradient(135deg, hsl(338, 95%, 56%), hsl(261, 100%, 75%));
+    --shadow-neon: 0 0 30px hsl(80, 76%, 53%, 0.5);
+    --shadow-glow: 0 0 60px hsl(338, 95%, 56%, 0.3);
+  }
 }
 
 @layer base {
