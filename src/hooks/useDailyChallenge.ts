@@ -34,38 +34,35 @@ export const useDailyChallenge = () => {
         .from('daily_challenges')
         .select('*')
         .eq('challenge_date', today)
-        .single();
+        .maybeSingle();
 
       if (existing) return existing as DailyChallenge;
 
       // If no challenge exists for today, create one
-      if (error?.code === 'PGRST116') {
-        const challengeText = generateRandomWords(30);
-        const targets = [
-          { wpm: 30, accuracy: 90, points: 10 },
-          { wpm: 40, accuracy: 92, points: 15 },
-          { wpm: 50, accuracy: 95, points: 25 },
-        ];
-        const target = targets[Math.floor(Math.random() * targets.length)];
+      const challengeText = generateRandomWords(30);
+      const targets = [
+        { wpm: 30, accuracy: 90, points: 10 },
+        { wpm: 40, accuracy: 92, points: 15 },
+        { wpm: 50, accuracy: 95, points: 25 },
+      ];
+      const target = targets[Math.floor(Math.random() * targets.length)];
 
-        const { data: newChallenge, error: insertError } = await supabase
-          .from('daily_challenges')
-          .insert({
-            challenge_date: today,
-            text_content: challengeText,
-            target_wpm: target.wpm,
-            target_accuracy: target.accuracy,
-            reward_points: target.points,
-            challenge_type: 'standard',
-          })
-          .select()
-          .single();
+      const { data: newChallenge, error: insertError } = await supabase
+        .from('daily_challenges')
+        .insert({
+          challenge_date: today,
+          text_content: challengeText,
+          target_wpm: target.wpm,
+          target_accuracy: target.accuracy,
+          reward_points: target.points,
+          challenge_type: 'standard',
+        })
+        .select()
+        .maybeSingle();
 
-        if (insertError) throw insertError;
-        return newChallenge as DailyChallenge;
-      }
-
-      throw error;
+      if (insertError) throw insertError;
+      if (!newChallenge) throw new Error('Failed to create challenge');
+      return newChallenge as DailyChallenge;
     },
   });
 };
@@ -83,11 +80,10 @@ export const useChallengeCompletion = (challengeId: string | undefined) => {
         .select('*')
         .eq('user_id', user.id)
         .eq('challenge_id', challengeId)
-        .single();
+        .maybeSingle();
 
-      if (error?.code === 'PGRST116') return null;
       if (error) throw error;
-      return data as ChallengeCompletion;
+      return data as ChallengeCompletion | null;
     },
     enabled: !!user && !!challengeId,
   });
