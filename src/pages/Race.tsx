@@ -129,8 +129,8 @@ const Race: React.FC = () => {
   };
 
   const handleStartRace = () => {
-    if (currentRaceId) {
-      startRace.mutate(currentRaceId);
+    if (currentRaceId && race?.host_id) {
+      startRace.mutate({ raceId: currentRaceId, hostId: race.host_id });
     }
   };
 
