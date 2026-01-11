@@ -47,6 +47,39 @@ export type Database = {
         }
         Relationships: []
       }
+      certificates: {
+        Row: {
+          accuracy: number | null
+          certificate_type: string
+          description: string | null
+          id: string
+          issued_at: string
+          title: string
+          user_id: string
+          wpm: number | null
+        }
+        Insert: {
+          accuracy?: number | null
+          certificate_type: string
+          description?: string | null
+          id?: string
+          issued_at?: string
+          title: string
+          user_id: string
+          wpm?: number | null
+        }
+        Update: {
+          accuracy?: number | null
+          certificate_type?: string
+          description?: string | null
+          id?: string
+          issued_at?: string
+          title?: string
+          user_id?: string
+          wpm?: number | null
+        }
+        Relationships: []
+      }
       challenge_completions: {
         Row: {
           accuracy: number
@@ -85,6 +118,60 @@ export type Database = {
           },
         ]
       }
+      chat_messages: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      custom_word_lists: {
+        Row: {
+          created_at: string
+          id: string
+          is_public: boolean | null
+          name: string
+          updated_at: string
+          user_id: string
+          words: string[]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_public?: boolean | null
+          name: string
+          updated_at?: string
+          user_id: string
+          words: string[]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_public?: boolean | null
+          name?: string
+          updated_at?: string
+          user_id?: string
+          words?: string[]
+        }
+        Relationships: []
+      }
       daily_challenges: {
         Row: {
           challenge_date: string
@@ -115,6 +202,66 @@ export type Database = {
           target_accuracy?: number
           target_wpm?: number
           text_content?: string
+        }
+        Relationships: []
+      }
+      friendships: {
+        Row: {
+          created_at: string
+          friend_id: string
+          id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          friend_id: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          friend_id?: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      game_scores: {
+        Row: {
+          created_at: string
+          game_type: string
+          id: string
+          level_reached: number | null
+          score: number
+          user_id: string
+          username: string | null
+          words_typed: number | null
+        }
+        Insert: {
+          created_at?: string
+          game_type: string
+          id?: string
+          level_reached?: number | null
+          score: number
+          user_id: string
+          username?: string | null
+          words_typed?: number | null
+        }
+        Update: {
+          created_at?: string
+          game_type?: string
+          id?: string
+          level_reached?: number | null
+          score?: number
+          user_id?: string
+          username?: string | null
+          words_typed?: number | null
         }
         Relationships: []
       }
@@ -204,6 +351,72 @@ export type Database = {
         }
         Relationships: []
       }
+      practice_reminders: {
+        Row: {
+          created_at: string
+          days_of_week: number[] | null
+          enabled: boolean | null
+          id: string
+          reminder_time: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          days_of_week?: number[] | null
+          enabled?: boolean | null
+          id?: string
+          reminder_time?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          days_of_week?: number[] | null
+          enabled?: boolean | null
+          id?: string
+          reminder_time?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      practice_sessions: {
+        Row: {
+          accuracy: number | null
+          created_at: string
+          details: Json | null
+          duration_seconds: number
+          id: string
+          session_type: string
+          user_id: string
+          wpm: number | null
+          xp_earned: number | null
+        }
+        Insert: {
+          accuracy?: number | null
+          created_at?: string
+          details?: Json | null
+          duration_seconds: number
+          id?: string
+          session_type: string
+          user_id: string
+          wpm?: number | null
+          xp_earned?: number | null
+        }
+        Update: {
+          accuracy?: number | null
+          created_at?: string
+          details?: Json | null
+          duration_seconds?: number
+          id?: string
+          session_type?: string
+          user_id?: string
+          wpm?: number | null
+          xp_earned?: number | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -212,10 +425,15 @@ export type Database = {
           created_at: string | null
           current_streak: number | null
           font_size: string | null
+          high_contrast: boolean | null
           id: string
           last_practice_date: string | null
+          level: number | null
           line_height: string | null
           longest_streak: number | null
+          reduced_motion: boolean | null
+          screen_reader_mode: boolean | null
+          skill_tier: string | null
           sound_enabled: boolean | null
           theme: string | null
           total_tests_completed: number | null
@@ -223,6 +441,7 @@ export type Database = {
           updated_at: string | null
           user_id: string
           username: string | null
+          xp: number | null
         }
         Insert: {
           avatar_url?: string | null
@@ -231,10 +450,15 @@ export type Database = {
           created_at?: string | null
           current_streak?: number | null
           font_size?: string | null
+          high_contrast?: boolean | null
           id?: string
           last_practice_date?: string | null
+          level?: number | null
           line_height?: string | null
           longest_streak?: number | null
+          reduced_motion?: boolean | null
+          screen_reader_mode?: boolean | null
+          skill_tier?: string | null
           sound_enabled?: boolean | null
           theme?: string | null
           total_tests_completed?: number | null
@@ -242,6 +466,7 @@ export type Database = {
           updated_at?: string | null
           user_id: string
           username?: string | null
+          xp?: number | null
         }
         Update: {
           avatar_url?: string | null
@@ -250,10 +475,15 @@ export type Database = {
           created_at?: string | null
           current_streak?: number | null
           font_size?: string | null
+          high_contrast?: boolean | null
           id?: string
           last_practice_date?: string | null
+          level?: number | null
           line_height?: string | null
           longest_streak?: number | null
+          reduced_motion?: boolean | null
+          screen_reader_mode?: boolean | null
+          skill_tier?: string | null
           sound_enabled?: boolean | null
           theme?: string | null
           total_tests_completed?: number | null
@@ -261,6 +491,7 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
           username?: string | null
+          xp?: number | null
         }
         Relationships: []
       }
@@ -392,6 +623,83 @@ export type Database = {
         }
         Relationships: []
       }
+      tournament_entries: {
+        Row: {
+          accuracy: number
+          id: string
+          score: number
+          submitted_at: string
+          tournament_id: string
+          user_id: string
+          username: string | null
+          wpm: number
+        }
+        Insert: {
+          accuracy: number
+          id?: string
+          score: number
+          submitted_at?: string
+          tournament_id: string
+          user_id: string
+          username?: string | null
+          wpm: number
+        }
+        Update: {
+          accuracy?: number
+          id?: string
+          score?: number
+          submitted_at?: string
+          tournament_id?: string
+          user_id?: string
+          username?: string | null
+          wpm?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tournament_entries_tournament_id_fkey"
+            columns: ["tournament_id"]
+            isOneToOne: false
+            referencedRelation: "tournaments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tournaments: {
+        Row: {
+          created_at: string
+          description: string | null
+          end_date: string
+          id: string
+          name: string
+          prize_xp: number | null
+          start_date: string
+          status: string
+          text_content: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          end_date: string
+          id?: string
+          name: string
+          prize_xp?: number | null
+          start_date: string
+          status?: string
+          text_content: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          end_date?: string
+          id?: string
+          name?: string
+          prize_xp?: number | null
+          start_date?: string
+          status?: string
+          text_content?: string
+        }
+        Relationships: []
+      }
       user_achievements: {
         Row: {
           achievement_id: string
@@ -453,7 +761,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      update_user_xp: {
+        Args: { p_user_id: string; p_xp_amount: number }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
