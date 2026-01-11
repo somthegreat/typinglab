@@ -47,7 +47,7 @@ const Profile: React.FC = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Security: Validate file type with allowlist
+    // Security: Validate file type with allowlist (client-side check)
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
     if (!allowedTypes.includes(file.type)) {
       toast.error('Please upload a valid image file (JPEG, PNG, WebP, or GIF)');
@@ -58,6 +58,13 @@ const Profile: React.FC = () => {
     const maxSize = 5 * 1024 * 1024; // 5MB
     if (file.size > maxSize) {
       toast.error('Image must be less than 5MB');
+      return;
+    }
+
+    // Security: Verify file content matches declared type by checking magic bytes
+    const isValidImage = await verifyImageContent(file);
+    if (!isValidImage) {
+      toast.error('File content does not match a valid image format');
       return;
     }
 
@@ -76,7 +83,10 @@ const Profile: React.FC = () => {
       
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(fileName, file, { upsert: true });
+        .upload(fileName, file, { 
+          upsert: true,
+          contentType: file.type // Explicitly set content type
+        });
 
       if (uploadError) throw uploadError;
 
@@ -98,6 +108,34 @@ const Profile: React.FC = () => {
     } finally {
       setIsUploading(false);
     }
+  };
+
+  // Security: Verify file content by checking magic bytes (file signatures)
+  const verifyImageContent = (file: File): Promise<boolean> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const arr = new Uint8Array(reader.result as ArrayBuffer).subarray(0, 12);
+        
+        // Check magic bytes for supported image formats
+        // JPEG: FF D8 FF
+        const isJPEG = arr[0] === 0xFF && arr[1] === 0xD8 && arr[2] === 0xFF;
+        
+        // PNG: 89 50 4E 47 0D 0A 1A 0A
+        const isPNG = arr[0] === 0x89 && arr[1] === 0x50 && arr[2] === 0x4E && arr[3] === 0x47;
+        
+        // GIF: 47 49 46 38 (GIF8)
+        const isGIF = arr[0] === 0x47 && arr[1] === 0x49 && arr[2] === 0x46 && arr[3] === 0x38;
+        
+        // WebP: 52 49 46 46 ... 57 45 42 50 (RIFF...WEBP)
+        const isWEBP = arr[0] === 0x52 && arr[1] === 0x49 && arr[2] === 0x46 && arr[3] === 0x46 &&
+                       arr[8] === 0x57 && arr[9] === 0x45 && arr[10] === 0x42 && arr[11] === 0x50;
+        
+        resolve(isJPEG || isPNG || isGIF || isWEBP);
+      };
+      reader.onerror = () => resolve(false);
+      reader.readAsArrayBuffer(file.slice(0, 12));
+    });
   };
 
   if (isLoading) {
