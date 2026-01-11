@@ -47,15 +47,31 @@ const Profile: React.FC = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please upload an image file');
+    // Security: Validate file type with allowlist
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Please upload a valid image file (JPEG, PNG, WebP, or GIF)');
+      return;
+    }
+
+    // Security: Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      toast.error('Image must be less than 5MB');
       return;
     }
 
     setIsUploading(true);
 
     try {
-      const fileExt = file.name.split('.').pop();
+      const fileExt = file.name.split('.').pop()?.toLowerCase();
+      // Security: Validate extension matches content type
+      const validExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+      if (!fileExt || !validExtensions.includes(fileExt)) {
+        toast.error('Invalid file extension');
+        return;
+      }
+      
       const fileName = `${user.id}-${Date.now()}.${fileExt}`;
       
       const { error: uploadError } = await supabase.storage

@@ -158,8 +158,15 @@ export const useJoinRace = () => {
 };
 
 export const useStartRace = () => {
+  const { user } = useAuth();
+  
   return useMutation({
-    mutationFn: async (raceId: string) => {
+    mutationFn: async ({ raceId, hostId }: { raceId: string; hostId: string }) => {
+      // Security: Verify caller is the host before attempting to start
+      if (!user || user.id !== hostId) {
+        throw new Error('Only the host can start the race');
+      }
+      
       const { error } = await supabase
         .from('races')
         .update({ status: 'countdown' })
