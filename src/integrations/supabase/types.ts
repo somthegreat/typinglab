@@ -761,10 +761,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      update_user_xp: {
-        Args: { p_user_id: string; p_xp_amount: number }
-        Returns: undefined
-      }
+      begin_racing: { Args: { p_race_id: string }; Returns: undefined }
+      start_race: { Args: { p_race_id: string }; Returns: undefined }
+      update_user_xp:
+        | {
+            Args: { p_user_id: string; p_xp_amount: number }
+            Returns: undefined
+          }
+        | { Args: { p_xp_amount: number }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

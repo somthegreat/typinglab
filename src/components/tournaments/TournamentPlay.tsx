@@ -45,7 +45,7 @@ const TournamentPlay: React.FC<TournamentPlayProps> = ({ tournament, onComplete,
         score,
       });
 
-      await supabase.rpc('update_user_xp', { p_user_id: user.id, p_xp_amount: 50 });
+      await supabase.rpc('update_user_xp', { p_xp_amount: 50 });
 
       setSubmitted(true);
       toast.success('Tournament entry submitted!');
