@@ -149,7 +149,7 @@ const WordRainGame: React.FC<WordRainGameProps> = ({ onBack }) => {
       });
 
       // Award XP
-      await supabase.rpc('update_user_xp', { p_user_id: user.id, p_xp_amount: Math.floor(score / 10) });
+      await supabase.rpc('update_user_xp', { p_xp_amount: Math.floor(score / 10) });
       
       toast.success('Score saved!');
     } catch (error) {

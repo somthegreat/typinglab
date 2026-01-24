@@ -162,24 +162,19 @@ export const useStartRace = () => {
   
   return useMutation({
     mutationFn: async ({ raceId, hostId }: { raceId: string; hostId: string }) => {
-      // Security: Verify caller is the host before attempting to start
+      // UX check for immediate feedback (actual authorization via RLS and server-side function)
       if (!user || user.id !== hostId) {
         throw new Error('Only the host can start the race');
       }
       
-      const { error } = await supabase
-        .from('races')
-        .update({ status: 'countdown' })
-        .eq('id', raceId);
+      // Use server-side function for secure race start
+      const { error } = await supabase.rpc('start_race', { p_race_id: raceId });
 
       if (error) throw error;
 
-      // After 3 seconds, start the race
+      // After 3 seconds, transition to racing using server-side function
       setTimeout(async () => {
-        await supabase
-          .from('races')
-          .update({ status: 'racing', started_at: new Date().toISOString() })
-          .eq('id', raceId);
+        await supabase.rpc('begin_racing', { p_race_id: raceId });
       }, 3000);
     },
   });

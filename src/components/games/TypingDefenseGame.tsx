@@ -158,7 +158,7 @@ const TypingDefenseGame: React.FC<TypingDefenseGameProps> = ({ onBack }) => {
         words_typed: wordsTyped,
       });
 
-      await supabase.rpc('update_user_xp', { p_user_id: user.id, p_xp_amount: Math.floor(score / 10) });
+      await supabase.rpc('update_user_xp', { p_xp_amount: Math.floor(score / 10) });
       
       toast.success('Score saved!');
     } catch (error) {
