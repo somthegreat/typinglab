@@ -17,6 +17,14 @@ import Race from "./pages/Race";
 import Practice from "./pages/Practice";
 import Profile from "./pages/Profile";
 import DailyChallenge from "./pages/DailyChallenge";
+import Games from "./pages/Games";
+import Friends from "./pages/Friends";
+import Chat from "./pages/Chat";
+import Tournaments from "./pages/Tournaments";
+import CustomWordLists from "./pages/CustomWordLists";
+import Reminders from "./pages/Reminders";
+import Certificates from "./pages/Certificates";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +50,14 @@ const App = () => (
                 <Route path="/practice" element={<Practice />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/challenge" element={<DailyChallenge />} />
+                <Route path="/games" element={<Games />} />
+                <Route path="/friends" element={<Friends />} />
+                <Route path="/chat" element={<Chat />} />
+                <Route path="/tournaments" element={<Tournaments />} />
+                <Route path="/word-lists" element={<CustomWordLists />} />
+                <Route path="/reminders" element={<Reminders />} />
+                <Route path="/certificates" element={<Certificates />} />
+                <Route path="/settings" element={<Settings />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

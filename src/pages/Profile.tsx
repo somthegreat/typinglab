@@ -149,12 +149,12 @@ const Profile: React.FC = () => {
   }
 
   const stats = [
+    { label: 'Level', value: profile?.level || 1, icon: Trophy, color: 'text-neon-yellow' },
+    { label: 'XP', value: profile?.xp?.toLocaleString() || 0, icon: Flame, color: 'text-neon-orange' },
     { label: 'Best WPM', value: profile?.best_wpm || 0, icon: Keyboard, color: 'text-primary' },
     { label: 'Best Accuracy', value: `${profile?.best_accuracy || 0}%`, icon: Target, color: 'text-accent' },
-    { label: 'Tests Completed', value: profile?.total_tests_completed || 0, icon: Trophy, color: 'text-neon-yellow' },
-    { label: 'Words Typed', value: profile?.total_words_typed?.toLocaleString() || 0, icon: Edit2, color: 'text-neon-pink' },
-    { label: 'Current Streak', value: `${profile?.current_streak || 0} days`, icon: Flame, color: 'text-neon-orange' },
-    { label: 'Longest Streak', value: `${profile?.longest_streak || 0} days`, icon: Calendar, color: 'text-neon-green' },
+    { label: 'Tests Completed', value: profile?.total_tests_completed || 0, icon: Trophy, color: 'text-neon-pink' },
+    { label: 'Current Streak', value: `${profile?.current_streak || 0} days`, icon: Calendar, color: 'text-neon-green' },
   ];
 
   return (

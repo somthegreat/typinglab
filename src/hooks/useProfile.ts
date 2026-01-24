@@ -20,6 +20,12 @@ export interface Profile {
   updated_at: string | null;
   font_size: string | null;
   line_height: string | null;
+  xp: number | null;
+  level: number | null;
+  skill_tier: string | null;
+  high_contrast: boolean | null;
+  reduced_motion: boolean | null;
+  screen_reader_mode: boolean | null;
 }
 
 export const useProfile = () => {
