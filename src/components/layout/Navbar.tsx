@@ -26,10 +26,16 @@ const Navbar: React.FC = () => {
   ];
 
   const moreLinks = [
+    { to: '/games', label: 'Games' },
+    { to: '/tournaments', label: 'Tournaments' },
     { to: '/practice', label: 'Practice', icon: Target },
     { to: '/stats', label: 'Stats', icon: BarChart3 },
     { to: '/leaderboard', label: 'Leaderboard' },
     { to: '/achievements', label: 'Achievements' },
+    { to: '/friends', label: 'Friends' },
+    { to: '/chat', label: 'Chat' },
+    { to: '/word-lists', label: 'Word Lists' },
+    { to: '/certificates', label: 'Certificates' },
   ];
 
   return (
@@ -101,6 +107,12 @@ const Navbar: React.FC = () => {
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link to="/achievements" className="w-full">Achievements</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/reminders" className="w-full">Reminders</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/settings" className="w-full">Settings</Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={signOut} className="text-destructive">

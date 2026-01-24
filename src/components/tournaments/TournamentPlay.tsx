@@ -5,7 +5,7 @@ import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import TypingTest from '@/components/typing/TypingTest';
+import CustomTypingTest from '@/components/typing/CustomTypingTest';
 
 interface Tournament {
   id: string;
@@ -62,8 +62,8 @@ const TournamentPlay: React.FC<TournamentPlayProps> = ({ tournament, onComplete,
           <ArrowLeft className="w-4 h-4 mr-2" /> Back
         </Button>
         <h2 className="text-2xl font-bold text-center mb-4">{tournament.name}</h2>
-        <TypingTest 
-          customText={tournament.text_content}
+        <CustomTypingTest 
+          text={tournament.text_content}
           onComplete={handleComplete}
         />
       </div>
