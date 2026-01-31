@@ -3,7 +3,7 @@ import { useTypingTest, TypingStats } from '@/hooks/useTypingTest';
 import { generateRandomWords } from '@/data/words';
 import { getRandomQuote } from '@/data/quotes';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Clock, Hash, Quote, FileText, Keyboard, Eye, EyeOff } from 'lucide-react';
+import { RefreshCw, Clock, Hash, Quote, FileText, Keyboard, Eye, EyeOff, Shield, ShieldAlert, Play } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import TestResults from './TestResults';
 import VirtualKeyboard, { KeyboardLayout } from './VirtualKeyboard';
@@ -14,6 +14,10 @@ import { useCheckAchievements } from '@/hooks/useAchievements';
 import { useUpdateWeakKeys } from '@/hooks/useWeakKeys';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSound } from '@/contexts/SoundContext';
+import { useAntiCheat } from '@/hooks/useAntiCheat';
+import { useTestReplay, TestReplay } from '@/hooks/useTestReplay';
+import TestReplayPlayer from '@/components/TestReplayPlayer';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 type TestMode = 'time' | 'words' | 'quote' | 'custom';
 type TimeOption = 15 | 30 | 60 | 120;
@@ -32,13 +36,18 @@ const TypingTest: React.FC = () => {
   const [keyboardLayout, setKeyboardLayout] = useState<KeyboardLayout>('qwerty');
   const [fontSize, setFontSize] = useState<FontSize>('medium');
   const [lineHeight, setLineHeight] = useState<LineHeight>('relaxed');
+  const [lastReplay, setLastReplay] = useState<TestReplay | null>(null);
+  const [showReplayPlayer, setShowReplayPlayer] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const previousWpmRef = useRef<number>(0);
   
   const { user } = useAuth();
   const saveTestResult = useSaveTestResult();
   const checkAchievements = useCheckAchievements();
   const updateWeakKeys = useUpdateWeakKeys();
   const { playKeySound, playErrorSound, playSuccessSound } = useSound();
+  const antiCheat = useAntiCheat();
+  const replay = useTestReplay();
   const getTestText = () => {
     switch (mode) {
       case 'quote': return getRandomQuote().text;
@@ -49,10 +58,17 @@ const TypingTest: React.FC = () => {
   };
 
   const handleComplete = async (stats: TypingStats) => {
+    // Stop replay recording
+    const testReplay = replay.stopRecording(targetText, stats.wpm, stats.accuracy);
+    setLastReplay(testReplay);
+    
+    // Get anti-cheat validation
+    const validation = antiCheat.getValidationStatus();
+    
     setFinalStats(stats);
     setShowResults(true);
     
-    if (user) {
+    if (user && validation.isValid) {
       await saveTestResult.mutateAsync({
         stats,
         mode,
@@ -85,11 +101,23 @@ const TypingTest: React.FC = () => {
     onComplete: handleComplete
   });
 
+  // Check WPM spikes for anti-cheat
+  useEffect(() => {
+    if (isStarted && stats.wpm > 0) {
+      antiCheat.checkWpmSpike(stats.wpm, previousWpmRef.current);
+      previousWpmRef.current = stats.wpm;
+    }
+  }, [stats.wpm, isStarted, antiCheat]);
+
   const refreshText = () => {
     const newText = getTestText();
     setText(newText);
     reset();
+    antiCheat.reset();
+    replay.reset();
+    previousWpmRef.current = 0;
     setShowResults(false);
+    setShowReplayPlayer(false);
     inputRef.current?.focus();
   };
 
@@ -99,29 +127,85 @@ const TypingTest: React.FC = () => {
 
   const handleRetry = () => {
     reset();
+    antiCheat.reset();
+    replay.reset();
+    previousWpmRef.current = 0;
     setShowResults(false);
+    setShowReplayPlayer(false);
     inputRef.current?.focus();
   };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    antiCheat.checkPaste(e);
+  };
+
+  // Handle focus loss
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && isStarted && !isFinished) {
+        antiCheat.checkFocusLoss();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [isStarted, isFinished, antiCheat]);
 
   const handleKeyDownWrapper = (e: React.KeyboardEvent<HTMLInputElement>) => {
     setPressedKey(e.key);
     
+    // Start recording on first keypress
+    if (!replay.isRecording && e.key.length === 1) {
+      replay.startRecording();
+    }
+    
+    // Anti-cheat: check key timing
+    if (e.key.length === 1) {
+      antiCheat.checkKeyTiming(e.key);
+    }
+    
     // Play sound based on correctness
     if (e.key.length === 1) {
       const expectedChar = targetText[currentIndex];
-      if (e.key === expectedChar) {
+      const isCorrect = e.key === expectedChar;
+      
+      if (isCorrect) {
         playKeySound();
+        replay.recordEvent('keypress', e.key, currentIndex, stats.wpm, stats.accuracy);
       } else {
         playErrorSound();
+        replay.recordEvent('error', e.key, currentIndex, stats.wpm, stats.accuracy);
       }
+    } else if (e.key === 'Backspace') {
+      replay.recordEvent('backspace', '', currentIndex - 1, stats.wpm, stats.accuracy);
     }
     
     handleKeyDown(e);
     setTimeout(() => setPressedKey(null), 100);
   };
 
+  if (showReplayPlayer && lastReplay) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 py-8">
+        <TestReplayPlayer 
+          replay={lastReplay} 
+          onClose={() => setShowReplayPlayer(false)} 
+        />
+      </div>
+    );
+  }
+
   if (showResults && finalStats) {
-    return <TestResults stats={finalStats} onRetry={handleRetry} onNewTest={refreshText} />;
+    return (
+      <TestResults 
+        stats={finalStats} 
+        onRetry={handleRetry} 
+        onNewTest={refreshText}
+        replay={lastReplay}
+        onPlayReplay={() => setShowReplayPlayer(true)}
+        antiCheatStatus={antiCheat.getValidationStatus()}
+      />
+    );
   }
 
   return (
@@ -222,6 +306,7 @@ const TypingTest: React.FC = () => {
           type="text"
           className="absolute opacity-0 pointer-events-none"
           onKeyDown={handleKeyDownWrapper}
+          onPaste={handlePaste}
           autoFocus
         />
         
