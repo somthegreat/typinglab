@@ -9,7 +9,8 @@ import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import WeakKeysDisplay from '@/components/WeakKeysDisplay';
-
+import KeyboardHeatmap from '@/components/KeyboardHeatmap';
+import DataExportImport from '@/components/DataExportImport';
 const Stats: React.FC = () => {
   const { user } = useAuth();
   const { data: testResults, isLoading: resultsLoading } = useTestResults();
@@ -94,6 +95,16 @@ const Stats: React.FC = () => {
             {/* Weak Keys Section */}
             <div className="mb-8">
               <WeakKeysDisplay />
+            </div>
+
+            {/* Keyboard Heatmap */}
+            <div className="mb-8">
+              <KeyboardHeatmap />
+            </div>
+
+            {/* Data Export/Import */}
+            <div className="mb-8">
+              <DataExportImport />
             </div>
 
             {chartData.length > 0 ? (
