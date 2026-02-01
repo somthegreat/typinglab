@@ -48,17 +48,17 @@ const TestResults: React.FC<TestResultsProps> = ({
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-12 animate-fade-up">
-      <h2 className="text-3xl font-bold text-center mb-2 gradient-text">Test Complete!</h2>
-      
-      {/* Anti-cheat status */}
-      {antiCheatStatus && (
-        <div className="flex justify-center mb-6">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-semibold mb-2">Test Complete</h2>
+        
+        {/* Anti-cheat status */}
+        {antiCheatStatus && (
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm ${
+              <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium ${
                 antiCheatStatus.isValid 
-                  ? 'bg-correct/20 text-correct' 
-                  : 'bg-destructive/20 text-destructive'
+                  ? 'bg-correct/10 text-correct' 
+                  : 'bg-destructive/10 text-destructive'
               }`}>
                 {antiCheatStatus.isValid ? (
                   <>
@@ -80,64 +80,72 @@ const TestResults: React.FC<TestResultsProps> = ({
               }
             </TooltipContent>
           </Tooltip>
-        </div>
-      )}
+        )}
+      </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-        <div className="stat-card text-center">
-          <Zap className="w-8 h-8 mx-auto mb-2 text-primary" />
-          <div className="text-4xl font-bold text-foreground">{stats.wpm}</div>
-          <div className="text-sm text-muted-foreground">WPM</div>
-        </div>
-
-        <div className="stat-card text-center">
-          <Target className="w-8 h-8 mx-auto mb-2 text-accent" />
-          <div className="text-4xl font-bold text-correct">{stats.accuracy}%</div>
-          <div className="text-sm text-muted-foreground">Accuracy</div>
+      {/* Main Stats */}
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="stat-card text-center py-8">
+          <Zap className="w-6 h-6 mx-auto mb-3 text-primary" />
+          <div className="text-4xl font-bold text-foreground mb-1">{stats.wpm}</div>
+          <div className="text-sm text-muted-foreground font-medium">WPM</div>
         </div>
 
-        <div className="stat-card text-center">
-          <Clock className="w-8 h-8 mx-auto mb-2 text-neon-orange" />
-          <div className="text-4xl font-bold text-foreground">{stats.timeElapsed}s</div>
-          <div className="text-sm text-muted-foreground">Time</div>
+        <div className="stat-card text-center py-8">
+          <Target className="w-6 h-6 mx-auto mb-3 text-accent" />
+          <div className="text-4xl font-bold text-correct mb-1">{stats.accuracy}%</div>
+          <div className="text-sm text-muted-foreground font-medium">Accuracy</div>
         </div>
 
-        <div className="stat-card text-center">
-          <Zap className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-          <div className="text-3xl font-bold text-foreground">{stats.rawWpm}</div>
-          <div className="text-sm text-muted-foreground">Raw WPM</div>
-        </div>
-
-        <div className="stat-card text-center">
-          <CheckCircle className="w-8 h-8 mx-auto mb-2 text-correct" />
-          <div className="text-3xl font-bold text-foreground">{stats.correctChars}</div>
-          <div className="text-sm text-muted-foreground">Correct</div>
-        </div>
-
-        <div className="stat-card text-center">
-          <XCircle className="w-8 h-8 mx-auto mb-2 text-destructive" />
-          <div className="text-3xl font-bold text-foreground">{stats.incorrectChars}</div>
-          <div className="text-sm text-muted-foreground">Errors</div>
+        <div className="stat-card text-center py-8">
+          <Clock className="w-6 h-6 mx-auto mb-3 text-muted-foreground" />
+          <div className="text-4xl font-bold text-foreground mb-1">{stats.timeElapsed}s</div>
+          <div className="text-sm text-muted-foreground font-medium">Time</div>
         </div>
       </div>
 
-      <div className="flex flex-wrap justify-center gap-4">
-        <Button variant="outline" size="lg" onClick={onRetry} className="gap-2">
-          <RotateCcw className="w-5 h-5" />
-          Retry
+      {/* Secondary Stats */}
+      <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="stat-card text-center py-4">
+          <div className="text-2xl font-semibold text-foreground">{stats.rawWpm}</div>
+          <div className="text-xs text-muted-foreground">Raw WPM</div>
+        </div>
+
+        <div className="stat-card text-center py-4">
+          <div className="flex items-center justify-center gap-1.5">
+            <CheckCircle className="w-4 h-4 text-correct" />
+            <span className="text-2xl font-semibold text-foreground">{stats.correctChars}</span>
+          </div>
+          <div className="text-xs text-muted-foreground">Correct</div>
+        </div>
+
+        <div className="stat-card text-center py-4">
+          <div className="flex items-center justify-center gap-1.5">
+            <XCircle className="w-4 h-4 text-destructive" />
+            <span className="text-2xl font-semibold text-foreground">{stats.incorrectChars}</span>
+          </div>
+          <div className="text-xs text-muted-foreground">Errors</div>
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="flex flex-wrap justify-center gap-3">
+        <Button variant="outline" size="lg" onClick={onRetry} className="gap-2 h-11">
+          <RotateCcw className="w-4 h-4" />
+          Retry Same Text
         </Button>
-        <Button size="lg" onClick={onNewTest} className="gap-2 neon-glow">
-          <RefreshCw className="w-5 h-5" />
+        <Button size="lg" onClick={onNewTest} className="gap-2 h-11">
+          <RefreshCw className="w-4 h-4" />
           New Test
         </Button>
         {replay && onPlayReplay && (
-          <Button variant="secondary" size="lg" onClick={onPlayReplay} className="gap-2">
-            <Play className="w-5 h-5" />
+          <Button variant="outline" size="lg" onClick={onPlayReplay} className="gap-2 h-11">
+            <Play className="w-4 h-4" />
             Watch Replay
           </Button>
         )}
-        <Button variant="ghost" size="lg" onClick={handleShare} className="gap-2">
-          <Share2 className="w-5 h-5" />
+        <Button variant="ghost" size="lg" onClick={handleShare} className="gap-2 h-11">
+          <Share2 className="w-4 h-4" />
           Share
         </Button>
       </div>
