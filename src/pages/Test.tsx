@@ -5,7 +5,7 @@ import TypingTest from '@/components/typing/TypingTest';
 const Test: React.FC = () => {
   return (
     <Layout>
-      <div className="min-h-[calc(100vh-4rem)] flex flex-col justify-center">
+      <div className="min-h-[calc(100vh-4rem)] flex flex-col justify-center py-8">
         <TypingTest />
       </div>
     </Layout>

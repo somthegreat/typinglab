@@ -209,10 +209,10 @@ const TypingTest: React.FC = () => {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 py-8">
       {/* Mode Selection */}
-      <div className="flex flex-wrap items-center justify-center gap-4 mb-8">
-        <div className="flex items-center gap-2 glass-card rounded-full p-1">
+      <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
+        <div className="flex items-center bg-secondary rounded-lg p-1">
           {[
             { mode: 'time' as TestMode, icon: Clock, label: 'Time' },
             { mode: 'words' as TestMode, icon: Hash, label: 'Words' },
@@ -224,7 +224,7 @@ const TypingTest: React.FC = () => {
               variant={mode === m ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setMode(m)}
-              className={cn("gap-2", mode === m && "neon-glow")}
+              className={cn("gap-2 h-9", mode !== m && "text-muted-foreground")}
             >
               <Icon className="w-4 h-4" />
               {label}
@@ -277,28 +277,31 @@ const TypingTest: React.FC = () => {
           value={customText}
           onChange={(e) => { setCustomText(e.target.value); setText(e.target.value); }}
           placeholder="Paste or type your custom text here..."
-          className="w-full p-4 mb-6 rounded-xl bg-secondary/50 border border-border text-foreground resize-none h-24 font-mono"
+          className="w-full p-4 mb-6 rounded-xl bg-secondary border border-border text-foreground resize-none h-24 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-ring"
         />
       )}
 
       {/* Stats Bar */}
-      <div className="flex items-center justify-center gap-8 mb-8">
+      <div className="flex items-center justify-center gap-12 mb-8">
         {mode === 'time' && timeRemaining !== null && (
-          <div className="text-4xl font-bold text-primary font-mono">{timeRemaining}s</div>
+          <div className="text-center">
+            <div className="text-4xl font-bold text-primary font-mono">{timeRemaining}</div>
+            <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider">seconds</div>
+          </div>
         )}
         <div className="text-center">
-          <div className="text-3xl font-bold text-foreground">{stats.wpm}</div>
-          <div className="text-sm text-muted-foreground">WPM</div>
+          <div className="text-4xl font-bold text-foreground font-mono">{stats.wpm}</div>
+          <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider">WPM</div>
         </div>
         <div className="text-center">
-          <div className="text-3xl font-bold text-correct">{stats.accuracy}%</div>
-          <div className="text-sm text-muted-foreground">Accuracy</div>
+          <div className="text-4xl font-bold text-correct font-mono">{stats.accuracy}%</div>
+          <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Accuracy</div>
         </div>
       </div>
 
       {/* Typing Area */}
       <div 
-        className="glass-card rounded-2xl p-8 mb-6 cursor-text relative"
+        className="glass-card p-8 mb-6 cursor-text relative"
         onClick={() => inputRef.current?.focus()}
       >
         <input
@@ -310,7 +313,7 @@ const TypingTest: React.FC = () => {
           autoFocus
         />
         
-        <div className={cn("font-mono tracking-wide", getFontSizeClass(fontSize), getLineHeightClass(lineHeight))}>
+        <div className={cn("font-mono tracking-wide leading-relaxed", getFontSizeClass(fontSize), getLineHeightClass(lineHeight))}>
           {targetText.split('').map((char, index) => {
             let className = 'char-untyped';
             if (index < currentIndex) {
@@ -327,8 +330,8 @@ const TypingTest: React.FC = () => {
         </div>
 
         {!isStarted && (
-          <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm rounded-2xl">
-            <p className="text-muted-foreground text-lg">Click here and start typing...</p>
+          <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-xl">
+            <p className="text-muted-foreground">Click here and start typing...</p>
           </div>
         )}
       </div>

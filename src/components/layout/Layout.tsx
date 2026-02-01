@@ -11,7 +11,7 @@ const Layout: React.FC<LayoutProps> = ({ children, showNav = true }) => {
   return (
     <div className="min-h-screen bg-background">
       {showNav && <Navbar />}
-      <main className={showNav ? "pt-16 pb-20 md:pb-8" : ""}>
+      <main className={showNav ? "pt-16 pb-20 md:pb-0" : ""}>
         {children}
       </main>
       {showNav && <MobileNav />}
