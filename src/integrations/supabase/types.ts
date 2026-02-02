@@ -758,10 +758,72 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      leaderboard_profiles: {
+        Row: {
+          avatar_url: string | null
+          best_accuracy: number | null
+          best_wpm: number | null
+          id: string | null
+          level: number | null
+          skill_tier: string | null
+          total_tests_completed: number | null
+          user_id: string | null
+          username: string | null
+          xp: number | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          best_accuracy?: number | null
+          best_wpm?: number | null
+          id?: string | null
+          level?: number | null
+          skill_tier?: string | null
+          total_tests_completed?: number | null
+          user_id?: string | null
+          username?: string | null
+          xp?: number | null
+        }
+        Update: {
+          avatar_url?: string | null
+          best_accuracy?: number | null
+          best_wpm?: number | null
+          id?: string | null
+          level?: number | null
+          skill_tier?: string | null
+          total_tests_completed?: number | null
+          user_id?: string | null
+          username?: string | null
+          xp?: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       begin_racing: { Args: { p_race_id: string }; Returns: undefined }
+      get_leaderboard: {
+        Args: { p_limit?: number }
+        Returns: {
+          avatar_url: string
+          best_accuracy: number
+          best_wpm: number
+          id: string
+          total_tests_completed: number
+          user_id: string
+          username: string
+        }[]
+      }
+      get_or_create_daily_challenge: {
+        Args: { p_date?: string }
+        Returns: {
+          challenge_date: string
+          challenge_type: string
+          id: string
+          reward_points: number
+          target_accuracy: number
+          target_wpm: number
+          text_content: string
+        }[]
+      }
       start_race: { Args: { p_race_id: string }; Returns: undefined }
       update_user_xp:
         | {

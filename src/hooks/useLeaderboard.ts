@@ -17,22 +17,17 @@ export const useLeaderboard = (filter: TimeFilter = 'all', limit: number = 50) =
   return useQuery({
     queryKey: ['leaderboard', filter, limit],
     queryFn: async (): Promise<LeaderboardEntry[]> => {
-      let query = supabase
-        .from('profiles')
-        .select('id, user_id, username, best_wpm, best_accuracy, total_tests_completed, avatar_url')
-        .not('best_wpm', 'is', null)
-        .gt('best_wpm', 0)
-        .order('best_wpm', { ascending: false })
-        .limit(limit);
+      // Use the secure RPC function to get leaderboard data
+      // This prevents exposure of sensitive profile fields
+      const { data, error } = await supabase
+        .rpc('get_leaderboard', { p_limit: limit });
+      
+      if (error) throw error;
       
       // Note: For time-based filtering, we would need to query test_results 
       // and aggregate by user. For now, we use best_wpm from profiles.
       
-      const { data, error } = await query;
-      
-      if (error) throw error;
-      
-      return data || [];
+      return (data || []) as LeaderboardEntry[];
     },
   });
 };

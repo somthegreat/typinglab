@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { generateRandomWords } from '@/data/words';
 
 interface DailyChallenge {
   id: string;
@@ -29,41 +28,20 @@ export const useDailyChallenge = () => {
   return useQuery({
     queryKey: ['daily-challenge', today],
     queryFn: async () => {
-      // Try to get today's challenge
-      const { data: existing, error } = await supabase
-        .from('daily_challenges')
-        .select('*')
-        .eq('challenge_date', today)
-        .maybeSingle();
+      // Use the secure RPC function to get or create today's challenge
+      // This prevents unauthorized challenge creation spam
+      const { data, error } = await supabase
+        .rpc('get_or_create_daily_challenge', { p_date: today });
 
-      if (existing) return existing as DailyChallenge;
-
-      // If no challenge exists for today, create one
-      const challengeText = generateRandomWords(30);
-      const targets = [
-        { wpm: 30, accuracy: 90, points: 10 },
-        { wpm: 40, accuracy: 92, points: 15 },
-        { wpm: 50, accuracy: 95, points: 25 },
-      ];
-      const target = targets[Math.floor(Math.random() * targets.length)];
-
-      const { data: newChallenge, error: insertError } = await supabase
-        .from('daily_challenges')
-        .insert({
-          challenge_date: today,
-          text_content: challengeText,
-          target_wpm: target.wpm,
-          target_accuracy: target.accuracy,
-          reward_points: target.points,
-          challenge_type: 'standard',
-        })
-        .select()
-        .maybeSingle();
-
-      if (insertError) throw insertError;
-      if (!newChallenge) throw new Error('Failed to create challenge');
-      return newChallenge as DailyChallenge;
+      if (error) throw error;
+      
+      // RPC returns an array, get the first result
+      const challenge = data?.[0];
+      if (!challenge) throw new Error('Failed to get daily challenge');
+      
+      return challenge as DailyChallenge;
     },
+    enabled: !!user, // Only fetch if user is authenticated
   });
 };
 
