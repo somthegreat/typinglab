@@ -1,9 +1,39 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Trash2, Bot, User, Sparkles } from 'lucide-react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { MessageCircle, X, Send, Trash2, Bot, User, Sparkles, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAIChat } from '@/hooks/useAIChat';
+import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
+
+const ROUTE_MAP: Record<string, { label: string; path: string }> = {
+  '/test': { label: 'Speed Test', path: '/test' },
+  '/lessons': { label: 'Lessons', path: '/lessons' },
+  '/practice': { label: 'Practice', path: '/practice' },
+  '/race': { label: 'Race', path: '/race' },
+  '/games': { label: 'Games', path: '/games' },
+  '/challenge': { label: 'Daily Challenge', path: '/challenge' },
+  '/stats': { label: 'Stats', path: '/stats' },
+  '/leaderboard': { label: 'Leaderboard', path: '/leaderboard' },
+  '/achievements': { label: 'Achievements', path: '/achievements' },
+  '/certificates': { label: 'Certificates', path: '/certificates' },
+  '/friends': { label: 'Friends', path: '/friends' },
+  '/tournaments': { label: 'Tournaments', path: '/tournaments' },
+  '/word-lists': { label: 'Word Lists', path: '/word-lists' },
+  '/reminders': { label: 'Reminders', path: '/reminders' },
+  '/settings': { label: 'Settings', path: '/settings' },
+  '/profile': { label: 'Profile', path: '/profile' },
+};
+
+function extractRoutes(content: string): { label: string; path: string }[] {
+  const found = new Set<string>();
+  for (const route of Object.keys(ROUTE_MAP)) {
+    if (content.includes(route)) {
+      found.add(route);
+    }
+  }
+  return Array.from(found).map((r) => ROUTE_MAP[r]);
+}
 
 const QUICK_PROMPTS = [
   'How do I improve my typing speed?',
@@ -18,6 +48,7 @@ const AIChatWidget: React.FC = () => {
   const { messages, isLoading, error, sendMessage, clearChat } = useAIChat();
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -150,9 +181,29 @@ const AIChatWidget: React.FC = () => {
                   )}
                 >
                   {msg.role === 'assistant' ? (
-                    <div className="prose prose-sm dark:prose-invert max-w-none [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 [&_strong]:text-foreground">
-                      <ReactMarkdown>{msg.content}</ReactMarkdown>
-                    </div>
+                    <>
+                      <div className="prose prose-sm dark:prose-invert max-w-none [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 [&_strong]:text-foreground">
+                        <ReactMarkdown>{msg.content}</ReactMarkdown>
+                      </div>
+                      {(() => {
+                        const routes = extractRoutes(msg.content);
+                        if (routes.length === 0) return null;
+                        return (
+                          <div className="flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-border/50">
+                            {routes.map((r) => (
+                              <button
+                                key={r.path}
+                                onClick={() => { navigate(r.path); setIsOpen(false); }}
+                                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                              >
+                                {r.label}
+                                <ArrowRight className="w-3 h-3" />
+                              </button>
+                            ))}
+                          </div>
+                        );
+                      })()}
+                    </>
                   ) : (
                     msg.content
                   )}
