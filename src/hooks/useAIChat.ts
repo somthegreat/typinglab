@@ -1,16 +1,33 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 type Message = { role: 'user' | 'assistant'; content: string };
+
+type UserContext = {
+  username?: string;
+  bestWpm?: number;
+  bestAccuracy?: number;
+  totalTests?: number;
+  totalWords?: number;
+  level?: number;
+  xp?: number;
+  streak?: number;
+  skillTier?: string;
+  weakKeys?: { key: string; errorRate: number }[];
+};
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-assistant`;
 
 async function streamChat({
   messages,
+  userContext,
   onDelta,
   onDone,
   onError,
 }: {
   messages: Message[];
+  userContext: UserContext | null;
   onDelta: (text: string) => void;
   onDone: () => void;
   onError: (error: string) => void;
@@ -21,7 +38,7 @@ async function streamChat({
       'Content-Type': 'application/json',
       Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
     },
-    body: JSON.stringify({ messages }),
+    body: JSON.stringify({ messages, userContext }),
   });
 
   if (!resp.ok) {
@@ -94,9 +111,62 @@ async function streamChat({
 }
 
 export function useAIChat() {
+  const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const userContextRef = useRef<UserContext | null>(null);
+
+  // Fetch user stats once when user is available
+  useEffect(() => {
+    if (!user) {
+      userContextRef.current = null;
+      return;
+    }
+
+    const fetchContext = async () => {
+      try {
+        const [profileRes, weakKeysRes] = await Promise.all([
+          supabase
+            .from('profiles')
+            .select('username, best_wpm, best_accuracy, total_tests_completed, total_words_typed, level, xp, current_streak, skill_tier')
+            .eq('user_id', user.id)
+            .single(),
+          supabase
+            .from('weak_keys')
+            .select('key_char, error_count, total_count')
+            .eq('user_id', user.id)
+            .order('error_count', { ascending: false })
+            .limit(5),
+        ]);
+
+        const p = profileRes.data;
+        const weakKeys = (weakKeysRes.data || [])
+          .filter((k) => (k.total_count ?? 0) > 0)
+          .map((k) => ({
+            key: k.key_char,
+            errorRate: Math.round(((k.error_count ?? 0) / (k.total_count ?? 1)) * 100),
+          }));
+
+        userContextRef.current = {
+          username: p?.username ?? undefined,
+          bestWpm: p?.best_wpm ?? undefined,
+          bestAccuracy: p?.best_accuracy != null ? Number(p.best_accuracy) : undefined,
+          totalTests: p?.total_tests_completed ?? undefined,
+          totalWords: p?.total_words_typed ?? undefined,
+          level: p?.level ?? undefined,
+          xp: p?.xp ?? undefined,
+          streak: p?.current_streak ?? undefined,
+          skillTier: p?.skill_tier ?? undefined,
+          weakKeys: weakKeys.length > 0 ? weakKeys : undefined,
+        };
+      } catch (e) {
+        console.error('Failed to fetch user context for AI:', e);
+      }
+    };
+
+    fetchContext();
+  }, [user]);
 
   const sendMessage = useCallback(
     async (input: string) => {
@@ -122,6 +192,7 @@ export function useAIChat() {
       try {
         await streamChat({
           messages: [...messages, userMsg],
+          userContext: userContextRef.current,
           onDelta: (chunk) => upsertAssistant(chunk),
           onDone: () => setIsLoading(false),
           onError: (err) => {

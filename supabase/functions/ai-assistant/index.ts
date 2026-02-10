@@ -70,11 +70,31 @@ serve(async (req) => {
   }
 
   try {
-    const { messages } = await req.json();
+    const { messages, userContext } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
+    }
+
+    // Build personalized system prompt with user stats
+    let systemPrompt = SYSTEM_PROMPT;
+    if (userContext) {
+      const parts: string[] = ["\n\n## Current User Stats"];
+      if (userContext.username) parts.push(`- **Username**: ${userContext.username}`);
+      if (userContext.bestWpm != null) parts.push(`- **Best WPM**: ${userContext.bestWpm}`);
+      if (userContext.bestAccuracy != null) parts.push(`- **Best Accuracy**: ${userContext.bestAccuracy}%`);
+      if (userContext.totalTests != null) parts.push(`- **Total Tests**: ${userContext.totalTests}`);
+      if (userContext.totalWords != null) parts.push(`- **Total Words Typed**: ${userContext.totalWords}`);
+      if (userContext.level != null) parts.push(`- **Level**: ${userContext.level}`);
+      if (userContext.xp != null) parts.push(`- **XP**: ${userContext.xp}`);
+      if (userContext.streak != null) parts.push(`- **Current Streak**: ${userContext.streak} days`);
+      if (userContext.skillTier) parts.push(`- **Tier**: ${userContext.skillTier}`);
+      if (userContext.weakKeys && userContext.weakKeys.length > 0) {
+        parts.push(`- **Weak Keys** (highest error rate): ${userContext.weakKeys.map((k: any) => `"${k.key}" (${k.errorRate}% errors)`).join(', ')}`);
+      }
+      parts.push("\nUse these stats to give personalized advice. Reference their specific weak keys, suggest appropriate WPM targets, and acknowledge their progress.");
+      systemPrompt += parts.join("\n");
     }
 
     const response = await fetch(
@@ -88,7 +108,7 @@ serve(async (req) => {
         body: JSON.stringify({
           model: "google/gemini-3-flash-preview",
           messages: [
-            { role: "system", content: SYSTEM_PROMPT },
+            { role: "system", content: systemPrompt },
             ...messages,
           ],
           stream: true,
