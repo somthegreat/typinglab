@@ -49,7 +49,7 @@ const AIChatWidget: React.FC = () => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          'fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center',
+        'fixed bottom-20 right-6 z-[60] w-14 h-14 rounded-full flex items-center justify-center',
           'bg-primary text-primary-foreground shadow-lg hover:scale-105 transition-all duration-200',
           'md:bottom-8 md:right-8',
           isOpen && 'scale-0 opacity-0 pointer-events-none'
@@ -61,7 +61,7 @@ const AIChatWidget: React.FC = () => {
 
       {/* Chat panel */}
       {isOpen && (
-        <div className="fixed bottom-0 right-0 z-50 w-full sm:bottom-6 sm:right-6 sm:w-[400px] sm:max-h-[600px] flex flex-col bg-card border border-border rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
+        <div className="fixed bottom-0 right-0 z-[60] w-full sm:bottom-6 sm:right-6 sm:w-[400px] sm:max-h-[600px] flex flex-col bg-card border border-border rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-secondary/50">
             <div className="flex items-center gap-2">
