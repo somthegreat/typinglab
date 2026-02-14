@@ -29,6 +29,8 @@ const Navbar: React.FC = () => {
     { to: '/games', label: 'Games' },
     { to: '/tournaments', label: 'Tournaments' },
     { to: '/practice', label: 'Focused Practice' },
+    { to: '/focus', label: 'Focus Mode' },
+    { to: '/goals', label: 'Goals' },
     { to: '/stats', label: 'Statistics' },
     { to: '/leaderboard', label: 'Leaderboard' },
     { to: '/achievements', label: 'Achievements' },
@@ -111,6 +113,9 @@ const Navbar: React.FC = () => {
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link to="/reminders" className="w-full cursor-pointer">Reminders</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/goals" className="w-full cursor-pointer">Goals</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link to="/settings" className="w-full cursor-pointer">Settings</Link>

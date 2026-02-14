@@ -700,6 +700,48 @@ export type Database = {
         }
         Relationships: []
       }
+      typing_goals: {
+        Row: {
+          completed: boolean
+          created_at: string
+          current_value: number
+          ends_at: string
+          goal_type: string
+          id: string
+          period: string
+          started_at: string
+          target_value: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          current_value?: number
+          ends_at: string
+          goal_type: string
+          id?: string
+          period?: string
+          started_at?: string
+          target_value: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          current_value?: number
+          ends_at?: string
+          goal_type?: string
+          id?: string
+          period?: string
+          started_at?: string
+          target_value?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_achievements: {
         Row: {
           achievement_id: string
