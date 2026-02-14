@@ -25,6 +25,8 @@ import CustomWordLists from "./pages/CustomWordLists";
 import Reminders from "./pages/Reminders";
 import Certificates from "./pages/Certificates";
 import Settings from "./pages/Settings";
+import Goals from "./pages/Goals";
+import FocusMode from "./pages/FocusMode";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -58,6 +60,8 @@ const App = () => (
                 <Route path="/reminders" element={<Reminders />} />
                 <Route path="/certificates" element={<Certificates />} />
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/goals" element={<Goals />} />
+                <Route path="/focus" element={<FocusMode />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import WeakKeysDisplay from '@/components/WeakKeysDisplay';
 import KeyboardHeatmap from '@/components/KeyboardHeatmap';
 import DataExportImport from '@/components/DataExportImport';
+import PracticeStreaksCalendar from '@/components/PracticeStreaksCalendar';
 
 const Stats: React.FC = () => {
   const { user } = useAuth();
@@ -95,6 +96,11 @@ const Stats: React.FC = () => {
                 <div className="text-xl font-bold">{profile?.total_words_typed?.toLocaleString() || 0}</div>
                 <div className="text-xs text-muted-foreground">Words Typed</div>
               </div>
+            </div>
+
+            {/* Practice Streaks Calendar */}
+            <div className="mb-8">
+              <PracticeStreaksCalendar />
             </div>
 
             {/* Weak Keys Section */}
