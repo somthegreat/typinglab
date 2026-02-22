@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Keyboard, User, BarChart3, BookOpen, LogOut, Calendar, Users, Target, ChevronDown, Settings } from 'lucide-react';
+import { Keyboard, User, LogOut, ChevronDown, Target, Swords, TrendingUp, Gamepad2, Trophy, Focus, Crosshair, BarChart3, Award, Medal, Users, MessageCircle, ListChecks, ScrollText, Settings, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
@@ -12,33 +12,40 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
 
 const Navbar: React.FC = () => {
   const location = useLocation();
   const { user, signOut } = useAuth();
 
-  const mainNavLinks = [
-    { to: '/test', label: 'Practice' },
-    { to: '/lessons', label: 'Lessons' },
-    { to: '/challenge', label: 'Daily' },
-    { to: '/race', label: 'Race' },
+  const practiceLinks = [
+    { to: '/test', label: 'Typing Test', icon: Keyboard },
+    { to: '/practice', label: 'Focused Practice', icon: Crosshair },
+    { to: '/focus', label: 'Focus Mode', icon: Focus },
+    { to: '/lessons', label: 'Lessons', icon: ScrollText },
+    { to: '/challenge', label: 'Daily Challenge', icon: Target },
+    { to: '/word-lists', label: 'Custom Word Lists', icon: ListChecks },
   ];
 
-  const moreLinks = [
-    { to: '/games', label: 'Games' },
-    { to: '/tournaments', label: 'Tournaments' },
-    { to: '/practice', label: 'Focused Practice' },
-    { to: '/focus', label: 'Focus Mode' },
-    { to: '/goals', label: 'Goals' },
-    { to: '/stats', label: 'Statistics' },
-    { to: '/leaderboard', label: 'Leaderboard' },
-    { to: '/achievements', label: 'Achievements' },
-    { to: '/friends', label: 'Friends' },
-    { to: '/chat', label: 'Chat' },
-    { to: '/word-lists', label: 'Word Lists' },
-    { to: '/certificates', label: 'Certificates' },
+  const competeLinks = [
+    { to: '/race', label: 'Race', icon: Swords },
+    { to: '/tournaments', label: 'Tournaments', icon: Trophy },
+    { to: '/leaderboard', label: 'Leaderboard', icon: Medal },
+    { to: '/games', label: 'Games', icon: Gamepad2 },
+    { to: '/friends', label: 'Friends', icon: Users },
+    { to: '/chat', label: 'Chat', icon: MessageCircle },
   ];
+
+  const progressLinks = [
+    { to: '/stats', label: 'Statistics', icon: BarChart3 },
+    { to: '/goals', label: 'Goals', icon: Target },
+    { to: '/achievements', label: 'Achievements', icon: Award },
+    { to: '/certificates', label: 'Certificates', icon: ScrollText },
+  ];
+
+  const isInCategory = (links: typeof practiceLinks) =>
+    links.some(l => location.pathname === l.to);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
@@ -54,39 +61,26 @@ const Navbar: React.FC = () => {
 
           {/* Navigation Links */}
           <div className="hidden md:flex items-center gap-1">
-            {mainNavLinks.map(({ to, label }) => (
-              <Link key={to} to={to}>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className={cn(
-                    "h-9 px-4 font-medium",
-                    location.pathname === to 
-                      ? "bg-secondary text-foreground" 
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  {label}
-                </Button>
-              </Link>
-            ))}
+            {/* Practice dropdown */}
+            <NavDropdown
+              label="Practice"
+              links={practiceLinks}
+              isActive={isInCategory(practiceLinks)}
+            />
 
-            {/* More dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-9 px-4 font-medium text-muted-foreground hover:text-foreground gap-1">
-                  More
-                  <ChevronDown className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="center" className="w-48">
-                {moreLinks.map(({ to, label }) => (
-                  <DropdownMenuItem key={to} asChild>
-                    <Link to={to} className="w-full cursor-pointer">{label}</Link>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* Compete dropdown */}
+            <NavDropdown
+              label="Compete"
+              links={competeLinks}
+              isActive={isInCategory(competeLinks)}
+            />
+
+            {/* Progress dropdown */}
+            <NavDropdown
+              label="Progress"
+              links={progressLinks}
+              isActive={isInCategory(progressLinks)}
+            />
           </div>
 
           {/* Right Side */}
@@ -101,21 +95,12 @@ const Navbar: React.FC = () => {
                     <User className="w-5 h-5" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuContent align="end" className="w-48 bg-popover z-50">
                   <DropdownMenuItem asChild>
                     <Link to="/profile" className="w-full cursor-pointer">Profile</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link to="/stats" className="w-full cursor-pointer">My Statistics</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/achievements" className="w-full cursor-pointer">Achievements</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
                     <Link to="/reminders" className="w-full cursor-pointer">Reminders</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/goals" className="w-full cursor-pointer">Goals</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link to="/settings" className="w-full cursor-pointer">Settings</Link>
@@ -136,6 +121,52 @@ const Navbar: React.FC = () => {
         </div>
       </div>
     </nav>
+  );
+};
+
+interface NavDropdownProps {
+  label: string;
+  links: { to: string; label: string; icon: React.ElementType }[];
+  isActive: boolean;
+}
+
+const NavDropdown: React.FC<NavDropdownProps> = ({ label, links, isActive }) => {
+  const location = useLocation();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className={cn(
+            "h-9 px-4 font-medium gap-1",
+            isActive
+              ? "bg-secondary text-foreground"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          {label}
+          <ChevronDown className="w-3.5 h-3.5" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="center" className="w-52 bg-popover z-50">
+        {links.map(({ to, label, icon: Icon }) => (
+          <DropdownMenuItem key={to} asChild>
+            <Link
+              to={to}
+              className={cn(
+                "w-full cursor-pointer flex items-center gap-2",
+                location.pathname === to && "text-primary font-medium"
+              )}
+            >
+              <Icon className="w-4 h-4" />
+              {label}
+            </Link>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 
