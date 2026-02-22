@@ -15,10 +15,11 @@ interface UseTypingTestOptions {
   text: string;
   timeLimit?: number;
   wordLimit?: number;
+  disableBackspace?: boolean;
   onComplete?: (stats: TypingStats) => void;
 }
 
-export const useTypingTest = ({ text, timeLimit, wordLimit, onComplete }: UseTypingTestOptions) => {
+export const useTypingTest = ({ text, timeLimit, wordLimit, disableBackspace, onComplete }: UseTypingTestOptions) => {
   const [input, setInput] = useState('');
   const [isStarted, setIsStarted] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
@@ -35,20 +36,22 @@ export const useTypingTest = ({ text, timeLimit, wordLimit, onComplete }: UseTyp
     const correctChars = currentIndex - errors.size;
     const incorrectChars = errors.size;
     const totalChars = currentIndex;
-    const minutes = timeElapsed / 60;
+    // Use precise elapsed time from startTime for accurate WPM
+    const preciseElapsed = startTime ? (Date.now() - startTime) / 1000 : timeElapsed;
+    const minutes = preciseElapsed / 60;
     const words = correctChars / 5;
     const rawWords = totalChars / 5;
     
     return {
-      wpm: minutes > 0 ? Math.round(words / minutes) : 0,
-      rawWpm: minutes > 0 ? Math.round(rawWords / minutes) : 0,
+      wpm: minutes > 0.05 ? Math.round(words / minutes) : 0,
+      rawWpm: minutes > 0.05 ? Math.round(rawWords / minutes) : 0,
       accuracy: totalChars > 0 ? Math.round((correctChars / totalChars) * 100 * 100) / 100 : 100,
       correctChars,
       incorrectChars,
       totalChars,
-      timeElapsed
+      timeElapsed: Math.round(preciseElapsed)
     };
-  }, [currentIndex, errors.size, timeElapsed]);
+  }, [currentIndex, errors.size, timeElapsed, startTime]);
 
   const finishTest = useCallback(() => {
     setIsFinished(true);
@@ -88,6 +91,7 @@ export const useTypingTest = ({ text, timeLimit, wordLimit, onComplete }: UseTyp
     }
 
     if (e.key === 'Backspace') {
+      if (disableBackspace) return;
       if (currentIndex > 0) {
         const newIndex = currentIndex - 1;
         setCurrentIndex(newIndex);
