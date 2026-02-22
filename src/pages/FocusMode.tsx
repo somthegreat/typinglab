@@ -42,6 +42,7 @@ const FocusMode: React.FC = () => {
     reset,
   } = useTypingTest({
     text,
+    disableBackspace: true,
     onComplete: handleComplete,
   });
 
