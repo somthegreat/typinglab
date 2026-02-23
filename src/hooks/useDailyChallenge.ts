@@ -28,18 +28,23 @@ export const useDailyChallenge = () => {
   return useQuery({
     queryKey: ['daily-challenge', today],
     queryFn: async () => {
-      // Use the secure RPC function to get or create today's challenge
-      // This prevents unauthorized challenge creation spam
       const { data, error } = await supabase
         .rpc('get_or_create_daily_challenge', { p_date: today });
 
       if (error) throw error;
       
-      // RPC returns an array, get the first result
-      const challenge = data?.[0];
-      if (!challenge) throw new Error('Failed to get daily challenge');
+      const row = data?.[0];
+      if (!row) throw new Error('Failed to get daily challenge');
       
-      return challenge as DailyChallenge;
+      return {
+        id: row.out_id,
+        challenge_date: row.out_challenge_date,
+        text_content: row.out_text_content,
+        target_wpm: row.out_target_wpm,
+        target_accuracy: row.out_target_accuracy,
+        reward_points: row.out_reward_points,
+        challenge_type: row.out_challenge_type,
+      } as DailyChallenge;
     },
     enabled: !!user, // Only fetch if user is authenticated
   });
