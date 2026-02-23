@@ -51,6 +51,7 @@ const DailyChallenge: React.FC = () => {
 
   const { input, isStarted, currentIndex, errors, stats, handleKeyDown, reset, targetText } = useTypingTest({
     text: challenge?.text_content || '',
+    disableBackspace: true,
     onComplete: handleComplete,
   });
 

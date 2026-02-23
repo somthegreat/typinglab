@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Gamepad2, Zap, Shield, Trophy } from 'lucide-react';
+import { Gamepad2, Zap, Shield, Trophy, Shuffle, Skull } from 'lucide-react';
 import WordRainGame from '@/components/games/WordRainGame';
 import SpeedChaseGame from '@/components/games/SpeedChaseGame';
 import TypingDefenseGame from '@/components/games/TypingDefenseGame';
+import WordScrambleGame from '@/components/games/WordScrambleGame';
+import ZombieSurvivalGame from '@/components/games/ZombieSurvivalGame';
 
-type GameType = 'menu' | 'word_rain' | 'speed_chase' | 'typing_defense';
+type GameType = 'menu' | 'word_rain' | 'speed_chase' | 'typing_defense' | 'word_scramble' | 'zombie_survival';
 
 const Games: React.FC = () => {
   const [activeGame, setActiveGame] = useState<GameType>('menu');
@@ -37,19 +39,29 @@ const Games: React.FC = () => {
       color: 'text-neon-green',
       bgColor: 'bg-neon-green/10',
     },
+    {
+      id: 'word_scramble' as GameType,
+      title: 'Word Scramble',
+      description: 'Unscramble letters to form words as fast as you can!',
+      icon: Shuffle,
+      color: 'text-primary',
+      bgColor: 'bg-primary/10',
+    },
+    {
+      id: 'zombie_survival' as GameType,
+      title: 'Zombie Survival',
+      description: 'Type words to fight off waves of zombies!',
+      icon: Skull,
+      color: 'text-destructive',
+      bgColor: 'bg-destructive/10',
+    },
   ];
 
-  if (activeGame === 'word_rain') {
-    return <WordRainGame onBack={() => setActiveGame('menu')} />;
-  }
-
-  if (activeGame === 'speed_chase') {
-    return <SpeedChaseGame onBack={() => setActiveGame('menu')} />;
-  }
-
-  if (activeGame === 'typing_defense') {
-    return <TypingDefenseGame onBack={() => setActiveGame('menu')} />;
-  }
+  if (activeGame === 'word_rain') return <WordRainGame onBack={() => setActiveGame('menu')} />;
+  if (activeGame === 'speed_chase') return <SpeedChaseGame onBack={() => setActiveGame('menu')} />;
+  if (activeGame === 'typing_defense') return <TypingDefenseGame onBack={() => setActiveGame('menu')} />;
+  if (activeGame === 'word_scramble') return <WordScrambleGame onBack={() => setActiveGame('menu')} />;
+  if (activeGame === 'zombie_survival') return <ZombieSurvivalGame onBack={() => setActiveGame('menu')} />;
 
   return (
     <Layout>
