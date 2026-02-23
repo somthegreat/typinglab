@@ -857,13 +857,13 @@ export type Database = {
       get_or_create_daily_challenge: {
         Args: { p_date?: string }
         Returns: {
-          challenge_date: string
-          challenge_type: string
-          id: string
-          reward_points: number
-          target_accuracy: number
-          target_wpm: number
-          text_content: string
+          out_challenge_date: string
+          out_challenge_type: string
+          out_id: string
+          out_reward_points: number
+          out_target_accuracy: number
+          out_target_wpm: number
+          out_text_content: string
         }[]
       }
       start_race: { Args: { p_race_id: string }; Returns: undefined }
