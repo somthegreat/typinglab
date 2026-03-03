@@ -2,8 +2,10 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, Shuffle, Trophy, Clock, Zap, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Shuffle, Trophy, Clock, Zap } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface WordScrambleGameProps {
   onBack: () => void;
@@ -31,12 +33,14 @@ const scrambleWord = (word: string): string => {
 };
 
 const WordScrambleGame: React.FC<WordScrambleGameProps> = ({ onBack }) => {
+  const { user } = useAuth();
   const [gameState, setGameState] = useState<'ready' | 'playing' | 'ended'>('ready');
   const [currentWord, setCurrentWord] = useState('');
   const [scrambled, setScrambled] = useState('');
   const [userInput, setUserInput] = useState('');
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
+  const [bestStreak, setBestStreak] = useState(0);
   const [wordsCompleted, setWordsCompleted] = useState(0);
   const [timeLeft, setTimeLeft] = useState(60);
   const [usedWords, setUsedWords] = useState<Set<string>>(new Set());
@@ -62,6 +66,7 @@ const WordScrambleGame: React.FC<WordScrambleGameProps> = ({ onBack }) => {
     setGameState('playing');
     setScore(0);
     setStreak(0);
+    setBestStreak(0);
     setWordsCompleted(0);
     setTimeLeft(60);
     setUsedWords(new Set());
@@ -73,12 +78,11 @@ const WordScrambleGame: React.FC<WordScrambleGameProps> = ({ onBack }) => {
     if (gameState !== 'playing') return;
     if (timeLeft <= 0) {
       setGameState('ended');
-      toast.info(`Game over! Score: ${score}`);
       return;
     }
     const timer = setInterval(() => setTimeLeft(t => t - 1), 1000);
     return () => clearInterval(timer);
-  }, [gameState, timeLeft, score]);
+  }, [gameState, timeLeft]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.toLowerCase();
@@ -87,7 +91,11 @@ const WordScrambleGame: React.FC<WordScrambleGameProps> = ({ onBack }) => {
     if (value === currentWord) {
       const points = 10 + streak * 2;
       setScore(s => s + points);
-      setStreak(s => s + 1);
+      setStreak(s => {
+        const newStreak = s + 1;
+        setBestStreak(b => Math.max(b, newStreak));
+        return newStreak;
+      });
       setWordsCompleted(w => w + 1);
       nextWord();
     }
@@ -97,6 +105,37 @@ const WordScrambleGame: React.FC<WordScrambleGameProps> = ({ onBack }) => {
     setStreak(0);
     nextWord();
   };
+
+  const saveScore = async () => {
+    if (!user) return;
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('user_id', user.id)
+        .single();
+
+      await supabase.from('game_scores').insert({
+        user_id: user.id,
+        username: profile?.username || 'Anonymous',
+        game_type: 'word_scramble',
+        score,
+        level_reached: bestStreak,
+        words_typed: wordsCompleted,
+      });
+
+      await supabase.rpc('update_user_xp', { p_xp_amount: Math.floor(score / 10) });
+      toast.success('Score saved!');
+    } catch (error) {
+      console.error('Failed to save score:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (gameState === 'ended' && user) {
+      saveScore();
+    }
+  }, [gameState]);
 
   return (
     <Layout>
@@ -129,7 +168,7 @@ const WordScrambleGame: React.FC<WordScrambleGameProps> = ({ onBack }) => {
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center gap-2">
                 <Clock className="w-5 h-5 text-muted-foreground" />
-                <span className={`text-2xl font-bold ${timeLeft <= 10 ? 'text-destructive' : ''}`}>{timeLeft}s</span>
+                <span className={`text-2xl font-bold ${timeLeft <= 10 ? 'text-destructive animate-pulse' : ''}`}>{timeLeft}s</span>
               </div>
               <div className="flex items-center gap-2">
                 <Trophy className="w-5 h-5 text-primary" />
@@ -177,9 +216,10 @@ const WordScrambleGame: React.FC<WordScrambleGameProps> = ({ onBack }) => {
             <CardContent className="p-8">
               <Trophy className="w-16 h-16 mx-auto mb-4 text-neon-yellow" />
               <h2 className="text-3xl font-bold mb-2">{score} Points</h2>
-              <p className="text-muted-foreground mb-6">
-                You unscrambled {wordsCompleted} words!
+              <p className="text-muted-foreground mb-2">
+                You unscrambled {wordsCompleted} words with a best streak of {bestStreak}!
               </p>
+              {user && <p className="text-sm text-primary mb-4">Score saved!</p>}
               <div className="flex justify-center gap-4">
                 <Button onClick={startGame}>Play Again</Button>
                 <Button variant="outline" onClick={onBack}>Back to Games</Button>
