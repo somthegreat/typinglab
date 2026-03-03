@@ -230,11 +230,15 @@ const TypingDefenseGame: React.FC<TypingDefenseGameProps> = ({ onBack }) => {
             </div>
           )}
 
-          {gameState === 'playing' && enemies.map(enemy => (
+          {gameState === 'playing' && enemies.map((enemy, idx) => (
             <div
               key={enemy.id}
-              className="absolute top-1/2 -translate-y-1/2 flex items-center gap-2"
-              style={{ left: `${enemy.x}%` }}
+              className="absolute flex items-center gap-2"
+              style={{ 
+                left: `${enemy.x}%`,
+                top: `${((idx * 47 + 13) % 80) + 10}%`,
+                transform: 'translateY(-50%)',
+              }}
             >
               <span className="text-lg font-mono font-bold text-red-400 bg-red-500/20 px-2 py-1 rounded">
                 {enemy.word}

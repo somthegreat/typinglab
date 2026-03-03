@@ -2,9 +2,10 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, Skull, Heart, Zap, Trophy, Shield } from 'lucide-react';
-import { Progress } from '@/components/ui/progress';
+import { ArrowLeft, Skull, Heart, Trophy, Shield } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ZombieSurvivalGameProps {
   onBack: () => void;
@@ -13,10 +14,10 @@ interface ZombieSurvivalGameProps {
 interface Zombie {
   id: number;
   word: string;
-  health: number;
-  position: number; // 0-100, 100 = reached base
+  position: number;
   speed: number;
   typed: string;
+  lane: number; // 0-4 for vertical distribution
 }
 
 const ZOMBIE_WORDS = [
@@ -28,7 +29,10 @@ const ZOMBIE_WORDS = [
   'quarantine', 'resistance', 'stronghold', 'devastation', 'extinction',
 ];
 
+const NUM_LANES = 5;
+
 const ZombieSurvivalGame: React.FC<ZombieSurvivalGameProps> = ({ onBack }) => {
+  const { user } = useAuth();
   const [gameState, setGameState] = useState<'ready' | 'playing' | 'ended'>('ready');
   const [zombies, setZombies] = useState<Zombie[]>([]);
   const [lives, setLives] = useState(5);
@@ -36,10 +40,15 @@ const ZombieSurvivalGame: React.FC<ZombieSurvivalGameProps> = ({ onBack }) => {
   const [wave, setWave] = useState(1);
   const [killCount, setKillCount] = useState(0);
   const [input, setInput] = useState('');
-  const [zombieIdCounter, setZombieIdCounter] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const gameLoopRef = useRef<number | null>(null);
   const spawnTimerRef = useRef<number | null>(null);
+  const zombieIdRef = useRef(0);
+  const lastTimeRef = useRef(0);
+  const waveRef = useRef(1);
+
+  // Keep waveRef in sync
+  useEffect(() => { waveRef.current = wave; }, [wave]);
 
   const getWordForWave = useCallback((currentWave: number) => {
     const maxLen = currentWave <= 3 ? 5 : currentWave <= 6 ? 7 : 12;
@@ -47,18 +56,12 @@ const ZombieSurvivalGame: React.FC<ZombieSurvivalGameProps> = ({ onBack }) => {
     return eligible[Math.floor(Math.random() * eligible.length)];
   }, []);
 
-  const spawnZombie = useCallback(() => {
-    setZombieIdCounter(prev => {
-      const newId = prev + 1;
-      setZombies(z => {
-        if (z.length >= 6) return z;
-        const word = getWordForWave(wave);
-        const speed = 0.3 + wave * 0.08 + Math.random() * 0.15;
-        return [...z, { id: newId, word, health: 1, position: 0, speed, typed: '' }];
-      });
-      return newId;
-    });
-  }, [wave, getWordForWave]);
+  const findFreeLane = useCallback((currentZombies: Zombie[]) => {
+    const usedLanes = new Set(currentZombies.map(z => z.lane));
+    const freeLanes = Array.from({ length: NUM_LANES }, (_, i) => i).filter(l => !usedLanes.has(l));
+    if (freeLanes.length > 0) return freeLanes[Math.floor(Math.random() * freeLanes.length)];
+    return Math.floor(Math.random() * NUM_LANES);
+  }, []);
 
   const startGame = () => {
     setGameState('playing');
@@ -68,21 +71,27 @@ const ZombieSurvivalGame: React.FC<ZombieSurvivalGameProps> = ({ onBack }) => {
     setWave(1);
     setKillCount(0);
     setInput('');
-    setZombieIdCounter(0);
+    zombieIdRef.current = 0;
+    lastTimeRef.current = performance.now();
     setTimeout(() => inputRef.current?.focus(), 100);
   };
 
-  // Game loop
+  // Game loop using requestAnimationFrame with delta time
   useEffect(() => {
     if (gameState !== 'playing') return;
 
-    gameLoopRef.current = window.setInterval(() => {
+    lastTimeRef.current = performance.now();
+
+    const loop = (now: number) => {
+      const delta = (now - lastTimeRef.current) / 1000; // seconds
+      lastTimeRef.current = now;
+
       setZombies(prev => {
         const updated: Zombie[] = [];
         let livesLost = 0;
 
         for (const z of prev) {
-          const newPos = z.position + z.speed;
+          const newPos = z.position + z.speed * delta * 60; // normalize to ~60fps
           if (newPos >= 100) {
             livesLost++;
           } else {
@@ -103,21 +112,46 @@ const ZombieSurvivalGame: React.FC<ZombieSurvivalGameProps> = ({ onBack }) => {
 
         return updated;
       });
-    }, 50);
 
-    return () => { if (gameLoopRef.current) clearInterval(gameLoopRef.current); };
+      gameLoopRef.current = requestAnimationFrame(loop);
+    };
+
+    gameLoopRef.current = requestAnimationFrame(loop);
+    return () => { if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current); };
   }, [gameState]);
 
-  // Spawn timer
+  // Spawn timer - uses ref for wave to avoid re-creating interval on wave change
   useEffect(() => {
     if (gameState !== 'playing') return;
 
-    const spawnRate = Math.max(800, 3000 - wave * 250);
-    spawnZombie(); // spawn first immediately
+    const spawn = () => {
+      const currentWave = waveRef.current;
+      const word = getWordForWave(currentWave);
+      const speed = 0.3 + currentWave * 0.08 + Math.random() * 0.15;
+      const id = ++zombieIdRef.current;
 
-    spawnTimerRef.current = window.setInterval(spawnZombie, spawnRate);
-    return () => { if (spawnTimerRef.current) clearInterval(spawnTimerRef.current); };
-  }, [gameState, wave, spawnZombie]);
+      setZombies(prev => {
+        if (prev.length >= 6) return prev;
+        const lane = findFreeLane(prev);
+        return [...prev, { id, word, position: 0, speed, typed: '', lane }];
+      });
+    };
+
+    spawn();
+    const getSpawnRate = () => Math.max(800, 3000 - waveRef.current * 250);
+    
+    // Use dynamic interval via setTimeout chain
+    let timeoutId: number;
+    const scheduleNext = () => {
+      timeoutId = window.setTimeout(() => {
+        spawn();
+        scheduleNext();
+      }, getSpawnRate());
+    };
+    scheduleNext();
+
+    return () => { clearTimeout(timeoutId); };
+  }, [gameState, getWordForWave, findFreeLane]);
 
   // Wave progression
   useEffect(() => {
@@ -134,21 +168,18 @@ const ZombieSurvivalGame: React.FC<ZombieSurvivalGameProps> = ({ onBack }) => {
     if (!value) return;
 
     setZombies(prev => {
+      const targetIdx = prev.findIndex(z => z.word.startsWith(value));
+      if (targetIdx === -1) return prev;
+
       const newZombies = [...prev];
-      // Find zombie whose word starts with current input
-      const targetIdx = newZombies.findIndex(z => z.word.startsWith(value));
+      newZombies[targetIdx] = { ...newZombies[targetIdx], typed: value };
 
-      if (targetIdx !== -1) {
-        newZombies[targetIdx] = { ...newZombies[targetIdx], typed: value };
-
-        if (value === newZombies[targetIdx].word) {
-          // Zombie killed!
-          const points = newZombies[targetIdx].word.length * 5 + wave * 2;
-          setScore(s => s + points);
-          setKillCount(k => k + 1);
-          setInput('');
-          return newZombies.filter((_, i) => i !== targetIdx);
-        }
+      if (value === newZombies[targetIdx].word) {
+        const points = newZombies[targetIdx].word.length * 5 + wave * 2;
+        setScore(s => s + points);
+        setKillCount(k => k + 1);
+        setInput('');
+        return newZombies.filter((_, i) => i !== targetIdx);
       }
 
       return newZombies;
@@ -161,6 +192,37 @@ const ZombieSurvivalGame: React.FC<ZombieSurvivalGameProps> = ({ onBack }) => {
       setZombies(prev => prev.map(z => ({ ...z, typed: '' })));
     }
   };
+
+  const saveScore = async () => {
+    if (!user) return;
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('user_id', user.id)
+        .single();
+
+      await supabase.from('game_scores').insert({
+        user_id: user.id,
+        username: profile?.username || 'Anonymous',
+        game_type: 'zombie_survival',
+        score,
+        level_reached: wave,
+        words_typed: killCount,
+      });
+
+      await supabase.rpc('update_user_xp', { p_xp_amount: Math.floor(score / 10) });
+      toast.success('Score saved!');
+    } catch (error) {
+      console.error('Failed to save score:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (gameState === 'ended' && user) {
+      saveScore();
+    }
+  }, [gameState]);
 
   return (
     <Layout>
@@ -190,7 +252,6 @@ const ZombieSurvivalGame: React.FC<ZombieSurvivalGameProps> = ({ onBack }) => {
 
         {gameState === 'playing' && (
           <>
-            {/* HUD */}
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center gap-1">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -207,20 +268,18 @@ const ZombieSurvivalGame: React.FC<ZombieSurvivalGameProps> = ({ onBack }) => {
               </div>
             </div>
 
-            {/* Game Field */}
             <Card className="glass-card mb-4 overflow-hidden">
               <CardContent className="p-0 h-80 relative">
-                {/* Base line */}
                 <div className="absolute right-0 top-0 bottom-0 w-1 bg-destructive/50" />
                 <div className="absolute right-0 top-0 bottom-0 w-8 bg-destructive/5" />
 
                 {zombies.map(zombie => (
                   <div
                     key={zombie.id}
-                    className="absolute flex items-center gap-2 transition-none"
+                    className="absolute flex items-center gap-2"
                     style={{
                       left: `${zombie.position}%`,
-                      top: `${(zombie.id * 47) % 80 + 10}%`,
+                      top: `${zombie.lane * (80 / (NUM_LANES - 1)) + 10}%`,
                       transform: 'translateY(-50%)',
                     }}
                   >
@@ -246,7 +305,6 @@ const ZombieSurvivalGame: React.FC<ZombieSurvivalGameProps> = ({ onBack }) => {
               </CardContent>
             </Card>
 
-            {/* Input */}
             <input
               ref={inputRef}
               type="text"
@@ -267,6 +325,7 @@ const ZombieSurvivalGame: React.FC<ZombieSurvivalGameProps> = ({ onBack }) => {
               <Skull className="w-16 h-16 mx-auto mb-4 text-destructive" />
               <h2 className="text-3xl font-bold mb-2">{score} Points</h2>
               <p className="text-muted-foreground mb-2">You survived {wave} waves and eliminated {killCount} zombies!</p>
+              {user && <p className="text-sm text-primary mb-4">Score saved!</p>}
               <div className="flex justify-center gap-4 mt-6">
                 <Button onClick={startGame} className="bg-destructive hover:bg-destructive/90">Try Again</Button>
                 <Button variant="outline" onClick={onBack}>Back to Games</Button>
