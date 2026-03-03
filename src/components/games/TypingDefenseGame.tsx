@@ -13,6 +13,7 @@ interface Enemy {
   id: string;
   word: string;
   x: number;
+  y: number;
   health: number;
   speed: number;
 }
@@ -46,6 +47,7 @@ const TypingDefenseGame: React.FC<TypingDefenseGameProps> = ({ onBack }) => {
       id: Math.random().toString(36).substr(2, 9),
       word: getRandomWord(),
       x: 100,
+      y: Math.random() * 70 + 15,
       health: 1,
       speed: 0.15 + wave * 0.03,
     };
@@ -230,13 +232,13 @@ const TypingDefenseGame: React.FC<TypingDefenseGameProps> = ({ onBack }) => {
             </div>
           )}
 
-          {gameState === 'playing' && enemies.map((enemy, idx) => (
+          {gameState === 'playing' && enemies.map((enemy) => (
             <div
               key={enemy.id}
               className="absolute flex items-center gap-2"
               style={{ 
                 left: `${enemy.x}%`,
-                top: `${((idx * 47 + 13) % 80) + 10}%`,
+                top: `${enemy.y}%`,
                 transform: 'translateY(-50%)',
               }}
             >
