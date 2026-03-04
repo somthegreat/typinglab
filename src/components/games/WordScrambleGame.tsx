@@ -6,6 +6,8 @@ import { ArrowLeft, Shuffle, Trophy, Clock, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { useSound } from '@/contexts/SoundContext';
+import PersonalBestBadge from './PersonalBestBadge';
 
 interface WordScrambleGameProps {
   onBack: () => void;
@@ -34,6 +36,7 @@ const scrambleWord = (word: string): string => {
 
 const WordScrambleGame: React.FC<WordScrambleGameProps> = ({ onBack }) => {
   const { user } = useAuth();
+  const { playKeySound, playSuccessSound } = useSound();
   const [gameState, setGameState] = useState<'ready' | 'playing' | 'ended'>('ready');
   const [currentWord, setCurrentWord] = useState('');
   const [scrambled, setScrambled] = useState('');
@@ -98,6 +101,9 @@ const WordScrambleGame: React.FC<WordScrambleGameProps> = ({ onBack }) => {
       });
       setWordsCompleted(w => w + 1);
       nextWord();
+      playSuccessSound();
+    } else {
+      playKeySound();
     }
   };
 
@@ -157,8 +163,9 @@ const WordScrambleGame: React.FC<WordScrambleGameProps> = ({ onBack }) => {
             <CardContent className="p-8">
               <Shuffle className="w-16 h-16 mx-auto mb-4 text-primary" />
               <h2 className="text-2xl font-bold mb-2">Ready to Scramble?</h2>
-              <p className="text-muted-foreground mb-6">You have 60 seconds to unscramble as many words as possible. Build streaks for bonus points!</p>
-              <Button size="lg" onClick={startGame}>Start Game</Button>
+              <p className="text-muted-foreground mb-4">You have 60 seconds to unscramble as many words as possible. Build streaks for bonus points!</p>
+              <PersonalBestBadge gameType="word_scramble" />
+              <Button size="lg" onClick={startGame} className="mt-4">Start Game</Button>
             </CardContent>
           </Card>
         )}

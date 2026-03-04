@@ -8,6 +8,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { commonWords } from '@/data/words';
+import { useSound } from '@/contexts/SoundContext';
+import PersonalBestBadge from './PersonalBestBadge';
 
 interface SpeedChaseGameProps {
   onBack: () => void;
@@ -15,6 +17,7 @@ interface SpeedChaseGameProps {
 
 const SpeedChaseGame: React.FC<SpeedChaseGameProps> = ({ onBack }) => {
   const { user } = useAuth();
+  const { playKeySound, playSuccessSound } = useSound();
   const [gameState, setGameState] = useState<'idle' | 'playing' | 'gameover'>('idle');
   const [timeLeft, setTimeLeft] = useState(60);
   const [score, setScore] = useState(0);
@@ -81,12 +84,14 @@ const SpeedChaseGame: React.FC<SpeedChaseGameProps> = ({ onBack }) => {
       setWordsTyped(prev => prev + 1);
       setCurrentWord(getRandomWord());
       setInput('');
+      playSuccessSound();
       
-      // Bonus time for long words
       if (currentWord.length >= 8) {
         setTimeLeft(prev => Math.min(prev + 2, 90));
         toast.success('+2 seconds!');
       }
+    } else {
+      playKeySound();
     }
   };
 
@@ -160,11 +165,12 @@ const SpeedChaseGame: React.FC<SpeedChaseGameProps> = ({ onBack }) => {
           {gameState === 'idle' && (
             <div className="text-center">
               <h2 className="text-2xl font-bold mb-4">Speed Chase</h2>
-              <p className="text-muted-foreground mb-6">
+              <p className="text-muted-foreground mb-4">
                 Type as many words as possible in 60 seconds!
                 <br />Build streaks for multipliers. Press Space to skip.
               </p>
-              <Button size="lg" onClick={startGame}>
+              <PersonalBestBadge gameType="speed_chase" />
+              <Button size="lg" onClick={startGame} className="mt-4">
                 <Play className="w-5 h-5 mr-2" /> Start Game
               </Button>
             </div>

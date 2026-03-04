@@ -6,6 +6,8 @@ import { ArrowLeft, Skull, Heart, Trophy, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { useSound } from '@/contexts/SoundContext';
+import PersonalBestBadge from './PersonalBestBadge';
 
 interface ZombieSurvivalGameProps {
   onBack: () => void;
@@ -33,6 +35,7 @@ const NUM_LANES = 5;
 
 const ZombieSurvivalGame: React.FC<ZombieSurvivalGameProps> = ({ onBack }) => {
   const { user } = useAuth();
+  const { playKeySound, playSuccessSound, playErrorSound } = useSound();
   const [gameState, setGameState] = useState<'ready' | 'playing' | 'ended'>('ready');
   const [zombies, setZombies] = useState<Zombie[]>([]);
   const [lives, setLives] = useState(5);
@@ -100,6 +103,7 @@ const ZombieSurvivalGame: React.FC<ZombieSurvivalGameProps> = ({ onBack }) => {
         }
 
         if (livesLost > 0) {
+          playErrorSound();
           setLives(l => {
             const newLives = l - livesLost;
             if (newLives <= 0) {
@@ -179,8 +183,10 @@ const ZombieSurvivalGame: React.FC<ZombieSurvivalGameProps> = ({ onBack }) => {
         setScore(s => s + points);
         setKillCount(k => k + 1);
         setInput('');
+        playSuccessSound();
         return newZombies.filter((_, i) => i !== targetIdx);
       }
+      playKeySound();
 
       return newZombies;
     });
@@ -244,8 +250,9 @@ const ZombieSurvivalGame: React.FC<ZombieSurvivalGameProps> = ({ onBack }) => {
             <CardContent className="p-8">
               <Skull className="w-16 h-16 mx-auto mb-4 text-destructive" />
               <h2 className="text-2xl font-bold mb-2">Survive the Horde</h2>
-              <p className="text-muted-foreground mb-6">Type zombie words to eliminate them. Each wave gets harder. You have 5 lives!</p>
-              <Button size="lg" onClick={startGame} className="bg-destructive hover:bg-destructive/90">Start Survival</Button>
+              <p className="text-muted-foreground mb-4">Type zombie words to eliminate them. Each wave gets harder. You have 5 lives!</p>
+              <PersonalBestBadge gameType="zombie_survival" />
+              <Button size="lg" onClick={startGame} className="mt-4 bg-destructive hover:bg-destructive/90">Start Survival</Button>
             </CardContent>
           </Card>
         )}

@@ -7,6 +7,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { commonWords } from '@/data/words';
+import { useSound } from '@/contexts/SoundContext';
+import PersonalBestBadge from './PersonalBestBadge';
 
 interface FallingWord {
   id: string;
@@ -22,6 +24,7 @@ interface WordRainGameProps {
 
 const WordRainGame: React.FC<WordRainGameProps> = ({ onBack }) => {
   const { user } = useAuth();
+  const { playKeySound, playSuccessSound, playErrorSound } = useSound();
   const [gameState, setGameState] = useState<'idle' | 'playing' | 'paused' | 'gameover'>('idle');
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(1);
@@ -68,6 +71,7 @@ const WordRainGame: React.FC<WordRainGameProps> = ({ onBack }) => {
 
       const fallen = updated.filter(w => w.y >= 100);
       if (fallen.length > 0) {
+        playErrorSound();
         setLives(l => {
           const newLives = l - fallen.length;
           if (newLives <= 0) {
@@ -112,6 +116,9 @@ const WordRainGame: React.FC<WordRainGameProps> = ({ onBack }) => {
       setScore(prev => prev + matchedWord.word.length * 10 * level);
       setWordsTyped(prev => prev + 1);
       setInput('');
+      playSuccessSound();
+    } else {
+      playKeySound();
     }
   };
 
@@ -193,8 +200,9 @@ const WordRainGame: React.FC<WordRainGameProps> = ({ onBack }) => {
           {gameState === 'idle' && (
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <h2 className="text-2xl font-bold mb-4">Word Rain</h2>
-              <p className="text-muted-foreground mb-6">Type the falling words before they hit the ground!</p>
-              <Button size="lg" onClick={startGame}>
+              <p className="text-muted-foreground mb-4">Type the falling words before they hit the ground!</p>
+              <PersonalBestBadge gameType="word_rain" />
+              <Button size="lg" onClick={startGame} className="mt-4">
                 <Play className="w-5 h-5 mr-2" /> Start Game
               </Button>
             </div>
