@@ -8,6 +8,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { commonWords } from '@/data/words';
+import { useSound } from '@/contexts/SoundContext';
+import PersonalBestBadge from './PersonalBestBadge';
 
 interface Enemy {
   id: string;
@@ -24,6 +26,7 @@ interface TypingDefenseGameProps {
 
 const TypingDefenseGame: React.FC<TypingDefenseGameProps> = ({ onBack }) => {
   const { user } = useAuth();
+  const { playKeySound, playSuccessSound, playErrorSound } = useSound();
   const [gameState, setGameState] = useState<'idle' | 'playing' | 'gameover'>('idle');
   const [score, setScore] = useState(0);
   const [wave, setWave] = useState(1);
@@ -77,6 +80,7 @@ const TypingDefenseGame: React.FC<TypingDefenseGameProps> = ({ onBack }) => {
       const reached = updated.filter(e => e.x <= 10);
       if (reached.length > 0) {
         const damage = reached.reduce((acc, e) => acc + e.word.length * 5, 0);
+        playErrorSound();
         setBaseHealth(h => {
           const newHealth = h - damage;
           if (newHealth <= 0) {
@@ -126,6 +130,9 @@ const TypingDefenseGame: React.FC<TypingDefenseGameProps> = ({ onBack }) => {
       setWordsTyped(prev => prev + 1);
       setEnemiesDefeated(prev => prev + 1);
       setInput('');
+      playSuccessSound();
+    } else {
+      playKeySound();
     }
   };
 
@@ -212,8 +219,9 @@ const TypingDefenseGame: React.FC<TypingDefenseGameProps> = ({ onBack }) => {
           {gameState === 'idle' && (
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <h2 className="text-2xl font-bold mb-4">Typing Defense</h2>
-              <p className="text-muted-foreground mb-6">Defend your base by typing the enemy words!</p>
-              <Button size="lg" onClick={startGame}>
+              <p className="text-muted-foreground mb-4">Defend your base by typing the enemy words!</p>
+              <PersonalBestBadge gameType="typing_defense" />
+              <Button size="lg" onClick={startGame} className="mt-4">
                 <Play className="w-5 h-5 mr-2" /> Start Game
               </Button>
             </div>

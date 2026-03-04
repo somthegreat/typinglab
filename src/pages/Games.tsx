@@ -8,6 +8,7 @@ import SpeedChaseGame from '@/components/games/SpeedChaseGame';
 import TypingDefenseGame from '@/components/games/TypingDefenseGame';
 import WordScrambleGame from '@/components/games/WordScrambleGame';
 import ZombieSurvivalGame from '@/components/games/ZombieSurvivalGame';
+import GameLeaderboard from '@/components/games/GameLeaderboard';
 
 type GameType = 'menu' | 'word_rain' | 'speed_chase' | 'typing_defense' | 'word_scramble' | 'zombie_survival';
 
@@ -74,7 +75,7 @@ const Games: React.FC = () => {
           <p className="text-muted-foreground">Have fun while improving your typing skills!</p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-3 mb-8">
           {games.map((game) => (
             <Card 
               key={game.id} 
@@ -94,6 +95,8 @@ const Games: React.FC = () => {
             </Card>
           ))}
         </div>
+
+        <GameLeaderboard />
       </div>
     </Layout>
   );
