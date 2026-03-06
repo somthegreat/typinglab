@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useSound } from '@/contexts/SoundContext';
 import PersonalBestBadge from './PersonalBestBadge';
+import ScorePopup, { useScorePopups } from './ScorePopup';
 
 interface ZombieSurvivalGameProps {
   onBack: () => void;
@@ -19,7 +20,7 @@ interface Zombie {
   position: number;
   speed: number;
   typed: string;
-  lane: number; // 0-4 for vertical distribution
+  lane: number;
 }
 
 const ZOMBIE_WORDS = [
@@ -36,6 +37,7 @@ const NUM_LANES = 5;
 const ZombieSurvivalGame: React.FC<ZombieSurvivalGameProps> = ({ onBack }) => {
   const { user } = useAuth();
   const { playKeySound, playSuccessSound, playErrorSound } = useSound();
+  const { popups, addPopup } = useScorePopups();
   const [gameState, setGameState] = useState<'ready' | 'playing' | 'ended'>('ready');
   const [zombies, setZombies] = useState<Zombie[]>([]);
   const [lives, setLives] = useState(5);
@@ -50,7 +52,6 @@ const ZombieSurvivalGame: React.FC<ZombieSurvivalGameProps> = ({ onBack }) => {
   const lastTimeRef = useRef(0);
   const waveRef = useRef(1);
 
-  // Keep waveRef in sync
   useEffect(() => { waveRef.current = wave; }, [wave]);
 
   const getWordForWave = useCallback((currentWave: number) => {
@@ -79,14 +80,12 @@ const ZombieSurvivalGame: React.FC<ZombieSurvivalGameProps> = ({ onBack }) => {
     setTimeout(() => inputRef.current?.focus(), 100);
   };
 
-  // Game loop using requestAnimationFrame with delta time
   useEffect(() => {
     if (gameState !== 'playing') return;
-
     lastTimeRef.current = performance.now();
 
     const loop = (now: number) => {
-      const delta = (now - lastTimeRef.current) / 1000; // seconds
+      const delta = (now - lastTimeRef.current) / 1000;
       lastTimeRef.current = now;
 
       setZombies(prev => {
@@ -94,7 +93,7 @@ const ZombieSurvivalGame: React.FC<ZombieSurvivalGameProps> = ({ onBack }) => {
         let livesLost = 0;
 
         for (const z of prev) {
-          const newPos = z.position + z.speed * delta * 60; // normalize to ~60fps
+          const newPos = z.position + z.speed * delta * 60;
           if (newPos >= 100) {
             livesLost++;
           } else {
@@ -124,7 +123,6 @@ const ZombieSurvivalGame: React.FC<ZombieSurvivalGameProps> = ({ onBack }) => {
     return () => { if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current); };
   }, [gameState]);
 
-  // Spawn timer - uses ref for wave to avoid re-creating interval on wave change
   useEffect(() => {
     if (gameState !== 'playing') return;
 
@@ -144,7 +142,6 @@ const ZombieSurvivalGame: React.FC<ZombieSurvivalGameProps> = ({ onBack }) => {
     spawn();
     const getSpawnRate = () => Math.max(800, 3000 - waveRef.current * 250);
     
-    // Use dynamic interval via setTimeout chain
     let timeoutId: number;
     const scheduleNext = () => {
       timeoutId = window.setTimeout(() => {
@@ -157,11 +154,10 @@ const ZombieSurvivalGame: React.FC<ZombieSurvivalGameProps> = ({ onBack }) => {
     return () => { clearTimeout(timeoutId); };
   }, [gameState, getWordForWave, findFreeLane]);
 
-  // Wave progression
   useEffect(() => {
     if (killCount > 0 && killCount % 8 === 0) {
       setWave(w => w + 1);
-      toast.success(`Wave ${wave + 1}!`);
+      addPopup(`💀 Wave ${wave + 1}!`, 'streak');
     }
   }, [killCount, wave]);
 
@@ -184,6 +180,7 @@ const ZombieSurvivalGame: React.FC<ZombieSurvivalGameProps> = ({ onBack }) => {
         setKillCount(k => k + 1);
         setInput('');
         playSuccessSound();
+        addPopup(`+${points}`, 'score');
         return newZombies.filter((_, i) => i !== targetIdx);
       }
       playKeySound();
@@ -277,6 +274,7 @@ const ZombieSurvivalGame: React.FC<ZombieSurvivalGameProps> = ({ onBack }) => {
 
             <Card className="glass-card mb-4 overflow-hidden">
               <CardContent className="p-0 h-80 relative">
+                <ScorePopup popups={popups} />
                 <div className="absolute right-0 top-0 bottom-0 w-1 bg-destructive/50" />
                 <div className="absolute right-0 top-0 bottom-0 w-8 bg-destructive/5" />
 

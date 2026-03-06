@@ -110,6 +110,11 @@ export default {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.5" },
         },
+        "score-popup": {
+          "0%": { opacity: "1", transform: "translateY(0) scale(1)" },
+          "50%": { opacity: "1", transform: "translateY(-20px) scale(1.2)" },
+          "100%": { opacity: "0", transform: "translateY(-50px) scale(0.8)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -120,6 +125,7 @@ export default {
         "slide-in-right": "slide-in-right 0.3s ease-out",
         shimmer: "shimmer 2s linear infinite",
         enter: "fade-in 0.3s ease-out, scale-in 0.2s ease-out",
+        "score-popup": "score-popup 1.2s ease-out forwards",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
