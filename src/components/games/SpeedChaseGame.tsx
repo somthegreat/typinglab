@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { commonWords } from '@/data/words';
 import { useSound } from '@/contexts/SoundContext';
 import PersonalBestBadge from './PersonalBestBadge';
+import ScorePopup, { useScorePopups } from './ScorePopup';
 
 interface SpeedChaseGameProps {
   onBack: () => void;
@@ -18,6 +19,7 @@ interface SpeedChaseGameProps {
 const SpeedChaseGame: React.FC<SpeedChaseGameProps> = ({ onBack }) => {
   const { user } = useAuth();
   const { playKeySound, playSuccessSound } = useSound();
+  const { popups, addPopup } = useScorePopups();
   const [gameState, setGameState] = useState<'idle' | 'playing' | 'gameover'>('idle');
   const [timeLeft, setTimeLeft] = useState(60);
   const [score, setScore] = useState(0);
@@ -62,7 +64,6 @@ const SpeedChaseGame: React.FC<SpeedChaseGameProps> = ({ onBack }) => {
   }, [gameState, timeLeft]);
 
   useEffect(() => {
-    // Update multiplier based on streak
     if (streak >= 20) setMultiplier(4);
     else if (streak >= 10) setMultiplier(3);
     else if (streak >= 5) setMultiplier(2);
@@ -79,16 +80,20 @@ const SpeedChaseGame: React.FC<SpeedChaseGameProps> = ({ onBack }) => {
       setStreak(prev => {
         const newStreak = prev + 1;
         setMaxStreak(m => Math.max(m, newStreak));
+        if (newStreak === 5) addPopup('🔥 x2 Multiplier!', 'streak');
+        else if (newStreak === 10) addPopup('⚡ x3 Multiplier!', 'streak');
+        else if (newStreak === 20) addPopup('💥 x4 Multiplier!', 'streak');
         return newStreak;
       });
       setWordsTyped(prev => prev + 1);
       setCurrentWord(getRandomWord());
       setInput('');
       playSuccessSound();
-      
+      addPopup(`+${points}`, 'score');
+
       if (currentWord.length >= 8) {
         setTimeLeft(prev => Math.min(prev + 2, 90));
-        toast.success('+2 seconds!');
+        addPopup('+2s Bonus!', 'bonus');
       }
     } else {
       playKeySound();
@@ -98,7 +103,6 @@ const SpeedChaseGame: React.FC<SpeedChaseGameProps> = ({ onBack }) => {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === ' ' || e.key === 'Tab') {
       e.preventDefault();
-      // Skip word but break streak
       setStreak(0);
       setCurrentWord(getRandomWord());
       setInput('');
@@ -107,7 +111,6 @@ const SpeedChaseGame: React.FC<SpeedChaseGameProps> = ({ onBack }) => {
 
   const saveScore = async () => {
     if (!user) return;
-
     try {
       const { data: profile } = await supabase
         .from('profiles')
@@ -125,7 +128,6 @@ const SpeedChaseGame: React.FC<SpeedChaseGameProps> = ({ onBack }) => {
       });
 
       await supabase.rpc('update_user_xp', { p_xp_amount: Math.floor(score / 10) });
-      
       toast.success('Score saved!');
     } catch (error) {
       console.error('Failed to save score:', error);
@@ -149,7 +151,7 @@ const SpeedChaseGame: React.FC<SpeedChaseGameProps> = ({ onBack }) => {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <Timer className="w-4 h-4 text-muted-foreground" />
-                <span className={`font-bold ${timeLeft <= 10 ? 'text-red-500 animate-pulse' : ''}`}>
+                <span className={`font-bold ${timeLeft <= 10 ? 'text-destructive animate-pulse' : ''}`}>
                   {timeLeft}s
                 </span>
               </div>
@@ -161,7 +163,9 @@ const SpeedChaseGame: React.FC<SpeedChaseGameProps> = ({ onBack }) => {
           )}
         </div>
 
-        <div className="bg-background/50 border rounded-lg p-8 mb-4">
+        <div className="relative bg-background/50 border rounded-lg p-8 mb-4">
+          <ScorePopup popups={popups} />
+
           {gameState === 'idle' && (
             <div className="text-center">
               <h2 className="text-2xl font-bold mb-4">Speed Chase</h2>

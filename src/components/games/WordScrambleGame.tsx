@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useSound } from '@/contexts/SoundContext';
 import PersonalBestBadge from './PersonalBestBadge';
+import ScorePopup, { useScorePopups } from './ScorePopup';
 
 interface WordScrambleGameProps {
   onBack: () => void;
@@ -37,6 +38,7 @@ const scrambleWord = (word: string): string => {
 const WordScrambleGame: React.FC<WordScrambleGameProps> = ({ onBack }) => {
   const { user } = useAuth();
   const { playKeySound, playSuccessSound } = useSound();
+  const { popups, addPopup } = useScorePopups();
   const [gameState, setGameState] = useState<'ready' | 'playing' | 'ended'>('ready');
   const [currentWord, setCurrentWord] = useState('');
   const [scrambled, setScrambled] = useState('');
@@ -97,11 +99,13 @@ const WordScrambleGame: React.FC<WordScrambleGameProps> = ({ onBack }) => {
       setStreak(s => {
         const newStreak = s + 1;
         setBestStreak(b => Math.max(b, newStreak));
+        if (newStreak % 5 === 0) addPopup(`🔥 ${newStreak} Streak!`, 'streak');
         return newStreak;
       });
       setWordsCompleted(w => w + 1);
       nextWord();
       playSuccessSound();
+      addPopup(`+${points}`, 'score');
     } else {
       playKeySound();
     }
@@ -187,8 +191,9 @@ const WordScrambleGame: React.FC<WordScrambleGameProps> = ({ onBack }) => {
               </div>
             </div>
 
-            <Card className="glass-card mb-6">
+            <Card className="glass-card mb-6 relative overflow-hidden">
               <CardContent className="p-8 text-center">
+                <ScorePopup popups={popups} />
                 <p className="text-sm text-muted-foreground mb-4">Unscramble this word:</p>
                 <div className="flex justify-center gap-2 mb-8">
                   {scrambled.split('').map((char, i) => (

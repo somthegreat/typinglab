@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { commonWords } from '@/data/words';
 import { useSound } from '@/contexts/SoundContext';
 import PersonalBestBadge from './PersonalBestBadge';
+import ScorePopup, { useScorePopups } from './ScorePopup';
 
 interface FallingWord {
   id: string;
@@ -25,6 +26,7 @@ interface WordRainGameProps {
 const WordRainGame: React.FC<WordRainGameProps> = ({ onBack }) => {
   const { user } = useAuth();
   const { playKeySound, playSuccessSound, playErrorSound } = useSound();
+  const { popups, addPopup } = useScorePopups();
   const [gameState, setGameState] = useState<'idle' | 'playing' | 'paused' | 'gameover'>('idle');
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(1);
@@ -102,7 +104,7 @@ const WordRainGame: React.FC<WordRainGameProps> = ({ onBack }) => {
   useEffect(() => {
     if (wordsTyped > 0 && wordsTyped % 10 === 0) {
       setLevel(prev => prev + 1);
-      toast.success(`Level ${level + 1}!`);
+      addPopup(`⬆️ Level ${level + 1}!`, 'streak');
     }
   }, [wordsTyped, level]);
 
@@ -112,11 +114,13 @@ const WordRainGame: React.FC<WordRainGameProps> = ({ onBack }) => {
 
     const matchedWord = words.find(w => w.word.toLowerCase() === value);
     if (matchedWord) {
+      const points = matchedWord.word.length * 10 * level;
       setWords(prev => prev.filter(w => w.id !== matchedWord.id));
-      setScore(prev => prev + matchedWord.word.length * 10 * level);
+      setScore(prev => prev + points);
       setWordsTyped(prev => prev + 1);
       setInput('');
       playSuccessSound();
+      addPopup(`+${points}`, 'score');
     } else {
       playKeySound();
     }
@@ -138,7 +142,6 @@ const WordRainGame: React.FC<WordRainGameProps> = ({ onBack }) => {
 
   const saveScore = async () => {
     if (!user) return;
-
     try {
       const { data: profile } = await supabase
         .from('profiles')
@@ -155,9 +158,7 @@ const WordRainGame: React.FC<WordRainGameProps> = ({ onBack }) => {
         words_typed: wordsTyped,
       });
 
-      // Award XP
       await supabase.rpc('update_user_xp', { p_xp_amount: Math.floor(score / 10) });
-      
       toast.success('Score saved!');
     } catch (error) {
       console.error('Failed to save score:', error);
@@ -188,7 +189,7 @@ const WordRainGame: React.FC<WordRainGameProps> = ({ onBack }) => {
             </div>
             <div className="text-sm">
               <span className="text-muted-foreground">Lives:</span>{' '}
-              <span className="font-bold text-red-500">{'❤️'.repeat(lives)}</span>
+              <span className="font-bold">{'❤️'.repeat(lives)}</span>
             </div>
           </div>
         </div>
@@ -197,6 +198,8 @@ const WordRainGame: React.FC<WordRainGameProps> = ({ onBack }) => {
           ref={gameAreaRef}
           className="relative bg-background/50 border rounded-lg h-[400px] overflow-hidden mb-4"
         >
+          <ScorePopup popups={popups} />
+
           {gameState === 'idle' && (
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <h2 className="text-2xl font-bold mb-4">Word Rain</h2>
@@ -210,7 +213,7 @@ const WordRainGame: React.FC<WordRainGameProps> = ({ onBack }) => {
 
           {gameState === 'gameover' && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80">
-              <h2 className="text-3xl font-bold text-red-500 mb-4">Game Over!</h2>
+              <h2 className="text-3xl font-bold text-destructive mb-4">Game Over!</h2>
               <p className="text-xl mb-2">Final Score: <span className="text-primary font-bold">{score}</span></p>
               <p className="text-muted-foreground mb-6">You reached level {level} and typed {wordsTyped} words</p>
               <Button size="lg" onClick={startGame}>

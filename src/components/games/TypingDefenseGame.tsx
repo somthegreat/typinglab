@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { commonWords } from '@/data/words';
 import { useSound } from '@/contexts/SoundContext';
 import PersonalBestBadge from './PersonalBestBadge';
+import ScorePopup, { useScorePopups } from './ScorePopup';
 
 interface Enemy {
   id: string;
@@ -27,6 +28,7 @@ interface TypingDefenseGameProps {
 const TypingDefenseGame: React.FC<TypingDefenseGameProps> = ({ onBack }) => {
   const { user } = useAuth();
   const { playKeySound, playSuccessSound, playErrorSound } = useSound();
+  const { popups, addPopup } = useScorePopups();
   const [gameState, setGameState] = useState<'idle' | 'playing' | 'gameover'>('idle');
   const [score, setScore] = useState(0);
   const [wave, setWave] = useState(1);
@@ -76,7 +78,6 @@ const TypingDefenseGame: React.FC<TypingDefenseGameProps> = ({ onBack }) => {
         x: enemy.x - enemy.speed,
       }));
 
-      // Check for enemies reaching the base
       const reached = updated.filter(e => e.x <= 10);
       if (reached.length > 0) {
         const damage = reached.reduce((acc, e) => acc + e.word.length * 5, 0);
@@ -108,14 +109,13 @@ const TypingDefenseGame: React.FC<TypingDefenseGameProps> = ({ onBack }) => {
     };
   }, [gameState, gameLoop]);
 
-  // Check for wave completion
   useEffect(() => {
     const maxEnemiesPerWave = 5 + wave * 2;
     if (gameState === 'playing' && waveEnemiesRef.current >= maxEnemiesPerWave && enemies.length === 0) {
       setWave(prev => prev + 1);
       waveEnemiesRef.current = 0;
       setBaseHealth(prev => Math.min(prev + 20, 100));
-      toast.success(`Wave ${wave + 1} starting! +20 HP`);
+      addPopup(`🛡️ Wave ${wave + 1}! +20 HP`, 'bonus');
     }
   }, [enemies, wave, gameState]);
 
@@ -125,12 +125,14 @@ const TypingDefenseGame: React.FC<TypingDefenseGameProps> = ({ onBack }) => {
 
     const matchedEnemy = enemies.find(enemy => enemy.word.toLowerCase() === value);
     if (matchedEnemy) {
+      const points = matchedEnemy.word.length * 10 * wave;
       setEnemies(prev => prev.filter(e => e.id !== matchedEnemy.id));
-      setScore(prev => prev + matchedEnemy.word.length * 10 * wave);
+      setScore(prev => prev + points);
       setWordsTyped(prev => prev + 1);
       setEnemiesDefeated(prev => prev + 1);
       setInput('');
       playSuccessSound();
+      addPopup(`+${points}`, 'score');
     } else {
       playKeySound();
     }
@@ -150,7 +152,6 @@ const TypingDefenseGame: React.FC<TypingDefenseGameProps> = ({ onBack }) => {
 
   const saveScore = async () => {
     if (!user) return;
-
     try {
       const { data: profile } = await supabase
         .from('profiles')
@@ -168,7 +169,6 @@ const TypingDefenseGame: React.FC<TypingDefenseGameProps> = ({ onBack }) => {
       });
 
       await supabase.rpc('update_user_xp', { p_xp_amount: Math.floor(score / 10) });
-      
       toast.success('Score saved!');
     } catch (error) {
       console.error('Failed to save score:', error);
@@ -200,18 +200,18 @@ const TypingDefenseGame: React.FC<TypingDefenseGameProps> = ({ onBack }) => {
           </div>
         </div>
 
-        {/* Base Health Bar */}
         <div className="mb-4 flex items-center gap-4">
           <Shield className="w-6 h-6 text-neon-blue" />
           <Progress value={baseHealth} className="flex-1 h-4" />
           <div className="flex items-center gap-1">
-            <Heart className={`w-5 h-5 ${baseHealth < 30 ? 'text-red-500 animate-pulse' : 'text-red-400'}`} />
+            <Heart className={`w-5 h-5 ${baseHealth < 30 ? 'text-destructive animate-pulse' : 'text-destructive/80'}`} />
             <span className="font-bold">{baseHealth}%</span>
           </div>
         </div>
 
         <div className="relative bg-gradient-to-r from-neon-blue/10 to-transparent border rounded-lg h-[300px] overflow-hidden mb-4">
-          {/* Base */}
+          <ScorePopup popups={popups} />
+
           <div className="absolute left-0 top-0 bottom-0 w-12 bg-neon-blue/20 border-r border-neon-blue flex items-center justify-center">
             <Shield className="w-8 h-8 text-neon-blue" />
           </div>
@@ -229,7 +229,7 @@ const TypingDefenseGame: React.FC<TypingDefenseGameProps> = ({ onBack }) => {
 
           {gameState === 'gameover' && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80">
-              <h2 className="text-3xl font-bold text-red-500 mb-4">Base Destroyed!</h2>
+              <h2 className="text-3xl font-bold text-destructive mb-4">Base Destroyed!</h2>
               <p className="text-xl mb-2">Final Score: <span className="text-primary font-bold">{score}</span></p>
               <p className="text-muted-foreground mb-6">
                 You survived {wave} waves and defeated {enemiesDefeated} enemies
@@ -250,7 +250,7 @@ const TypingDefenseGame: React.FC<TypingDefenseGameProps> = ({ onBack }) => {
                 transform: 'translateY(-50%)',
               }}
             >
-              <span className="text-lg font-mono font-bold text-red-400 bg-red-500/20 px-2 py-1 rounded">
+              <span className="text-lg font-mono font-bold text-destructive/90 bg-destructive/20 px-2 py-1 rounded">
                 {enemy.word}
               </span>
               <span className="text-2xl">👾</span>
