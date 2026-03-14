@@ -32,7 +32,7 @@ const SpeedChaseGame: React.FC<SpeedChaseGameProps> = ({ onBack }) => {
   const [wordsTyped, setWordsTyped] = useState(0);
   const [multiplier, setMultiplier] = useState(1);
   const inputRef = useRef<HTMLInputElement>(null);
-  const timerRef = useRef<NodeJS.Timeout>();
+  const timerRef = useRef<ReturnType<typeof setTimeout>>();
 
   const config = DIFFICULTY_CONFIGS[difficulty];
 
