@@ -10,6 +10,7 @@ import { commonWords } from '@/data/words';
 import { useSound } from '@/contexts/SoundContext';
 import PersonalBestBadge from './PersonalBestBadge';
 import ScorePopup, { useScorePopups } from './ScorePopup';
+import DifficultySelector, { Difficulty, DIFFICULTY_CONFIGS } from './DifficultySelector';
 
 interface FallingWord {
   id: string;
@@ -27,6 +28,7 @@ const WordRainGame: React.FC<WordRainGameProps> = ({ onBack }) => {
   const { user } = useAuth();
   const { playKeySound, playSuccessSound, playErrorSound } = useSound();
   const { popups, addPopup } = useScorePopups();
+  const [difficulty, setDifficulty] = useState<Difficulty>('medium');
   const [gameState, setGameState] = useState<'idle' | 'playing' | 'paused' | 'gameover'>('idle');
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(1);
@@ -39,9 +41,12 @@ const WordRainGame: React.FC<WordRainGameProps> = ({ onBack }) => {
   const animationRef = useRef<number>();
   const lastSpawnRef = useRef(0);
 
+  const config = DIFFICULTY_CONFIGS[difficulty];
+
   const getRandomWord = useCallback(() => {
-    return commonWords[Math.floor(Math.random() * Math.min(commonWords.length, 100 + level * 50))];
-  }, [level]);
+    const maxIdx = Math.min(commonWords.length, config.wordMaxIndex + level * 30);
+    return commonWords[Math.floor(Math.random() * maxIdx)];
+  }, [level, config.wordMaxIndex]);
 
   const spawnWord = useCallback(() => {
     const newWord: FallingWord = {
@@ -49,16 +54,16 @@ const WordRainGame: React.FC<WordRainGameProps> = ({ onBack }) => {
       word: getRandomWord(),
       x: Math.random() * 80 + 10,
       y: 0,
-      speed: 0.3 + level * 0.1,
+      speed: (0.3 + level * 0.1) * config.speed,
     };
     setWords(prev => [...prev, newWord]);
-  }, [getRandomWord, level]);
+  }, [getRandomWord, level, config.speed]);
 
   const gameLoop = useCallback(() => {
     if (gameState !== 'playing') return;
 
     const now = Date.now();
-    const spawnInterval = Math.max(2000 - level * 200, 800);
+    const spawnInterval = Math.max(800, (2000 - level * 200) * config.spawnRate);
 
     if (now - lastSpawnRef.current > spawnInterval) {
       spawnWord();
@@ -66,39 +71,28 @@ const WordRainGame: React.FC<WordRainGameProps> = ({ onBack }) => {
     }
 
     setWords(prev => {
-      const updated = prev.map(word => ({
-        ...word,
-        y: word.y + word.speed,
-      }));
-
+      const updated = prev.map(word => ({ ...word, y: word.y + word.speed }));
       const fallen = updated.filter(w => w.y >= 100);
       if (fallen.length > 0) {
         playErrorSound();
         setLives(l => {
           const newLives = l - fallen.length;
-          if (newLives <= 0) {
-            setGameState('gameover');
-          }
+          if (newLives <= 0) setGameState('gameover');
           return Math.max(0, newLives);
         });
       }
-
       return updated.filter(w => w.y < 100);
     });
 
     animationRef.current = requestAnimationFrame(gameLoop);
-  }, [gameState, level, spawnWord]);
+  }, [gameState, level, spawnWord, config.spawnRate]);
 
   useEffect(() => {
     if (gameState === 'playing') {
       animationRef.current = requestAnimationFrame(gameLoop);
       inputRef.current?.focus();
     }
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
+    return () => { if (animationRef.current) cancelAnimationFrame(animationRef.current); };
   }, [gameState, gameLoop]);
 
   useEffect(() => {
@@ -111,7 +105,6 @@ const WordRainGame: React.FC<WordRainGameProps> = ({ onBack }) => {
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.toLowerCase();
     setInput(value);
-
     const matchedWord = words.find(w => w.word.toLowerCase() === value);
     if (matchedWord) {
       const points = matchedWord.word.length * 10 * level;
@@ -130,135 +123,71 @@ const WordRainGame: React.FC<WordRainGameProps> = ({ onBack }) => {
     setGameState('playing');
     setScore(0);
     setLevel(1);
-    setLives(3);
+    setLives(config.lives);
     setWords([]);
     setWordsTyped(0);
     lastSpawnRef.current = Date.now();
   };
 
-  const pauseGame = () => {
-    setGameState(gameState === 'playing' ? 'paused' : 'playing');
-  };
+  const pauseGame = () => setGameState(gameState === 'playing' ? 'paused' : 'playing');
 
   const saveScore = async () => {
     if (!user) return;
     try {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('username')
-        .eq('user_id', user.id)
-        .single();
-
-      await supabase.from('game_scores').insert({
-        user_id: user.id,
-        username: profile?.username || 'Anonymous',
-        game_type: 'word_rain',
-        score,
-        level_reached: level,
-        words_typed: wordsTyped,
-      });
-
+      const { data: profile } = await supabase.from('profiles').select('username').eq('user_id', user.id).single();
+      await supabase.from('game_scores').insert({ user_id: user.id, username: profile?.username || 'Anonymous', game_type: 'word_rain', score, level_reached: level, words_typed: wordsTyped });
       await supabase.rpc('update_user_xp', { p_xp_amount: Math.floor(score / 10) });
       toast.success('Score saved!');
-    } catch (error) {
-      console.error('Failed to save score:', error);
-    }
+    } catch (error) { console.error('Failed to save score:', error); }
   };
 
-  useEffect(() => {
-    if (gameState === 'gameover' && user) {
-      saveScore();
-    }
-  }, [gameState]);
+  useEffect(() => { if (gameState === 'gameover' && user) saveScore(); }, [gameState]);
 
   return (
     <Layout>
       <div className="container mx-auto px-4 py-4 max-w-4xl">
         <div className="flex items-center justify-between mb-4">
-          <Button variant="ghost" onClick={onBack}>
-            <ArrowLeft className="w-4 h-4 mr-2" /> Back
-          </Button>
+          <Button variant="ghost" onClick={onBack}><ArrowLeft className="w-4 h-4 mr-2" /> Back</Button>
           <div className="flex items-center gap-4">
-            <div className="text-sm">
-              <span className="text-muted-foreground">Score:</span>{' '}
-              <span className="font-bold text-primary">{score}</span>
-            </div>
-            <div className="text-sm">
-              <span className="text-muted-foreground">Level:</span>{' '}
-              <span className="font-bold text-neon-yellow">{level}</span>
-            </div>
-            <div className="text-sm">
-              <span className="text-muted-foreground">Lives:</span>{' '}
-              <span className="font-bold">{'❤️'.repeat(lives)}</span>
-            </div>
+            <div className="text-sm"><span className="text-muted-foreground">Score:</span> <span className="font-bold text-primary">{score}</span></div>
+            <div className="text-sm"><span className="text-muted-foreground">Level:</span> <span className="font-bold text-neon-yellow">{level}</span></div>
+            <div className="text-sm"><span className="text-muted-foreground">Lives:</span> <span className="font-bold">{'❤️'.repeat(lives)}</span></div>
           </div>
         </div>
 
-        <div 
-          ref={gameAreaRef}
-          className="relative bg-background/50 border rounded-lg h-[400px] overflow-hidden mb-4"
-        >
+        <div ref={gameAreaRef} className="relative bg-background/50 border rounded-lg h-[400px] overflow-hidden mb-4">
           <ScorePopup popups={popups} />
-
           {gameState === 'idle' && (
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <h2 className="text-2xl font-bold mb-4">Word Rain</h2>
-              <p className="text-muted-foreground mb-4">Type the falling words before they hit the ground!</p>
+              <h2 className="text-2xl font-bold mb-2">Word Rain</h2>
+              <p className="text-muted-foreground mb-2">Type the falling words before they hit the ground!</p>
               <PersonalBestBadge gameType="word_rain" />
-              <Button size="lg" onClick={startGame} className="mt-4">
-                <Play className="w-5 h-5 mr-2" /> Start Game
-              </Button>
+              <DifficultySelector selected={difficulty} onChange={setDifficulty} />
+              <Button size="lg" onClick={startGame}><Play className="w-5 h-5 mr-2" /> Start Game</Button>
             </div>
           )}
-
           {gameState === 'gameover' && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80">
               <h2 className="text-3xl font-bold text-destructive mb-4">Game Over!</h2>
               <p className="text-xl mb-2">Final Score: <span className="text-primary font-bold">{score}</span></p>
               <p className="text-muted-foreground mb-6">You reached level {level} and typed {wordsTyped} words</p>
-              <Button size="lg" onClick={startGame}>
-                <RotateCcw className="w-5 h-5 mr-2" /> Play Again
-              </Button>
+              <Button size="lg" onClick={startGame}><RotateCcw className="w-5 h-5 mr-2" /> Play Again</Button>
             </div>
           )}
-
           {gameState === 'paused' && (
             <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-10">
-              <Button size="lg" onClick={pauseGame}>
-                <Play className="w-5 h-5 mr-2" /> Resume
-              </Button>
+              <Button size="lg" onClick={pauseGame}><Play className="w-5 h-5 mr-2" /> Resume</Button>
             </div>
           )}
-
           {(gameState === 'playing' || gameState === 'paused') && words.map(word => (
-            <div
-              key={word.id}
-              className="absolute text-lg font-mono font-bold text-primary animate-pulse"
-              style={{
-                left: `${word.x}%`,
-                top: `${word.y}%`,
-                transform: 'translateX(-50%)',
-              }}
-            >
-              {word.word}
-            </div>
+            <div key={word.id} className="absolute text-lg font-mono font-bold text-primary animate-pulse" style={{ left: `${word.x}%`, top: `${word.y}%`, transform: 'translateX(-50%)' }}>{word.word}</div>
           ))}
         </div>
 
         {(gameState === 'playing' || gameState === 'paused') && (
           <div className="flex gap-4">
-            <Input
-              ref={inputRef}
-              value={input}
-              onChange={handleInput}
-              placeholder="Type the words..."
-              className="text-lg"
-              disabled={gameState === 'paused'}
-              autoFocus
-            />
-            <Button variant="outline" onClick={pauseGame}>
-              {gameState === 'paused' ? <Play className="w-5 h-5" /> : <Pause className="w-5 h-5" />}
-            </Button>
+            <Input ref={inputRef} value={input} onChange={handleInput} placeholder="Type the words..." className="text-lg" disabled={gameState === 'paused'} autoFocus />
+            <Button variant="outline" onClick={pauseGame}>{gameState === 'paused' ? <Play className="w-5 h-5" /> : <Pause className="w-5 h-5" />}</Button>
           </div>
         )}
       </div>
