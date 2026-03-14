@@ -9,21 +9,35 @@ import { supabase } from '@/integrations/supabase/client';
 import { useSound } from '@/contexts/SoundContext';
 import PersonalBestBadge from './PersonalBestBadge';
 import ScorePopup, { useScorePopups } from './ScorePopup';
+import DifficultySelector, { Difficulty, DIFFICULTY_CONFIGS } from './DifficultySelector';
 
 interface WordScrambleGameProps {
   onBack: () => void;
 }
 
-const WORDS = [
-  'keyboard', 'practice', 'accuracy', 'champion', 'challenge',
-  'strength', 'program', 'develop', 'function', 'variable',
-  'network', 'browser', 'digital', 'creative', 'solution',
-  'problem', 'project', 'feature', 'element', 'process',
-  'content', 'pattern', 'trigger', 'session', 'profile',
-  'achieve', 'balance', 'chapter', 'defense', 'explore',
-  'genuine', 'harmony', 'inspire', 'journey', 'kitchen',
-  'library', 'machine', 'natural', 'operate', 'present',
+const EASY_WORDS = [
+  'program', 'develop', 'network', 'browser', 'digital', 'pattern', 'balance',
+  'explore', 'kitchen', 'library', 'machine', 'natural', 'operate', 'present',
 ];
+
+const MEDIUM_WORDS = [
+  'keyboard', 'practice', 'accuracy', 'champion', 'challenge', 'strength',
+  'function', 'variable', 'creative', 'solution', 'problem', 'project',
+  'feature', 'element', 'process', 'content', 'trigger', 'session', 'profile',
+  'achieve', 'chapter', 'defense', 'genuine', 'harmony', 'inspire', 'journey',
+];
+
+const HARD_WORDS = [
+  'algorithm', 'debugging', 'framework', 'interface', 'recursion', 'polymorphism',
+  'abstraction', 'concurrency', 'middleware', 'encryption', 'virtualize',
+  'optimizing', 'deployment', 'kubernetes', 'microservice', 'architecture',
+];
+
+const WORD_POOLS: Record<Difficulty, string[]> = {
+  easy: EASY_WORDS,
+  medium: MEDIUM_WORDS,
+  hard: HARD_WORDS,
+};
 
 const scrambleWord = (word: string): string => {
   const arr = word.split('');
@@ -39,6 +53,7 @@ const WordScrambleGame: React.FC<WordScrambleGameProps> = ({ onBack }) => {
   const { user } = useAuth();
   const { playKeySound, playSuccessSound } = useSound();
   const { popups, addPopup } = useScorePopups();
+  const [difficulty, setDifficulty] = useState<Difficulty>('medium');
   const [gameState, setGameState] = useState<'ready' | 'playing' | 'ended'>('ready');
   const [currentWord, setCurrentWord] = useState('');
   const [scrambled, setScrambled] = useState('');
@@ -51,11 +66,14 @@ const WordScrambleGame: React.FC<WordScrambleGameProps> = ({ onBack }) => {
   const [usedWords, setUsedWords] = useState<Set<string>>(new Set());
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const config = DIFFICULTY_CONFIGS[difficulty];
+  const wordPool = WORD_POOLS[difficulty];
+
   const nextWord = useCallback(() => {
-    const available = WORDS.filter(w => !usedWords.has(w));
+    const available = wordPool.filter(w => !usedWords.has(w));
     if (available.length === 0) {
       setUsedWords(new Set());
-      const word = WORDS[Math.floor(Math.random() * WORDS.length)];
+      const word = wordPool[Math.floor(Math.random() * wordPool.length)];
       setCurrentWord(word);
       setScrambled(scrambleWord(word));
     } else {
@@ -65,7 +83,7 @@ const WordScrambleGame: React.FC<WordScrambleGameProps> = ({ onBack }) => {
       setUsedWords(prev => new Set(prev).add(word));
     }
     setUserInput('');
-  }, [usedWords]);
+  }, [usedWords, wordPool]);
 
   const startGame = () => {
     setGameState('playing');
@@ -73,7 +91,7 @@ const WordScrambleGame: React.FC<WordScrambleGameProps> = ({ onBack }) => {
     setStreak(0);
     setBestStreak(0);
     setWordsCompleted(0);
-    setTimeLeft(60);
+    setTimeLeft(config.timer);
     setUsedWords(new Set());
     nextWord();
     setTimeout(() => inputRef.current?.focus(), 100);
@@ -81,10 +99,7 @@ const WordScrambleGame: React.FC<WordScrambleGameProps> = ({ onBack }) => {
 
   useEffect(() => {
     if (gameState !== 'playing') return;
-    if (timeLeft <= 0) {
-      setGameState('ended');
-      return;
-    }
+    if (timeLeft <= 0) { setGameState('ended'); return; }
     const timer = setInterval(() => setTimeLeft(t => t - 1), 1000);
     return () => clearInterval(timer);
   }, [gameState, timeLeft]);
@@ -92,7 +107,6 @@ const WordScrambleGame: React.FC<WordScrambleGameProps> = ({ onBack }) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.toLowerCase();
     setUserInput(value);
-
     if (value === currentWord) {
       const points = 10 + streak * 2;
       setScore(s => s + points);
@@ -111,48 +125,24 @@ const WordScrambleGame: React.FC<WordScrambleGameProps> = ({ onBack }) => {
     }
   };
 
-  const handleSkip = () => {
-    setStreak(0);
-    nextWord();
-  };
+  const handleSkip = () => { setStreak(0); nextWord(); };
 
   const saveScore = async () => {
     if (!user) return;
     try {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('username')
-        .eq('user_id', user.id)
-        .single();
-
-      await supabase.from('game_scores').insert({
-        user_id: user.id,
-        username: profile?.username || 'Anonymous',
-        game_type: 'word_scramble',
-        score,
-        level_reached: bestStreak,
-        words_typed: wordsCompleted,
-      });
-
+      const { data: profile } = await supabase.from('profiles').select('username').eq('user_id', user.id).single();
+      await supabase.from('game_scores').insert({ user_id: user.id, username: profile?.username || 'Anonymous', game_type: 'word_scramble', score, level_reached: bestStreak, words_typed: wordsCompleted });
       await supabase.rpc('update_user_xp', { p_xp_amount: Math.floor(score / 10) });
       toast.success('Score saved!');
-    } catch (error) {
-      console.error('Failed to save score:', error);
-    }
+    } catch (error) { console.error('Failed to save score:', error); }
   };
 
-  useEffect(() => {
-    if (gameState === 'ended' && user) {
-      saveScore();
-    }
-  }, [gameState]);
+  useEffect(() => { if (gameState === 'ended' && user) saveScore(); }, [gameState]);
 
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-2xl">
-        <Button variant="ghost" onClick={onBack} className="mb-6 gap-2">
-          <ArrowLeft className="w-4 h-4" /> Back to Games
-        </Button>
+        <Button variant="ghost" onClick={onBack} className="mb-6 gap-2"><ArrowLeft className="w-4 h-4" /> Back to Games</Button>
 
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-2">
@@ -167,9 +157,10 @@ const WordScrambleGame: React.FC<WordScrambleGameProps> = ({ onBack }) => {
             <CardContent className="p-8">
               <Shuffle className="w-16 h-16 mx-auto mb-4 text-primary" />
               <h2 className="text-2xl font-bold mb-2">Ready to Scramble?</h2>
-              <p className="text-muted-foreground mb-4">You have 60 seconds to unscramble as many words as possible. Build streaks for bonus points!</p>
+              <p className="text-muted-foreground mb-2">Unscramble as many words as possible. Build streaks for bonus points!</p>
               <PersonalBestBadge gameType="word_scramble" />
-              <Button size="lg" onClick={startGame} className="mt-4">Start Game</Button>
+              <DifficultySelector selected={difficulty} onChange={setDifficulty} />
+              <Button size="lg" onClick={startGame}>Start Game</Button>
             </CardContent>
           </Card>
         )}
@@ -181,45 +172,22 @@ const WordScrambleGame: React.FC<WordScrambleGameProps> = ({ onBack }) => {
                 <Clock className="w-5 h-5 text-muted-foreground" />
                 <span className={`text-2xl font-bold ${timeLeft <= 10 ? 'text-destructive animate-pulse' : ''}`}>{timeLeft}s</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Trophy className="w-5 h-5 text-primary" />
-                <span className="text-2xl font-bold">{score}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Zap className="w-5 h-5 text-neon-yellow" />
-                <span className="text-lg font-medium">x{streak}</span>
-              </div>
+              <div className="flex items-center gap-2"><Trophy className="w-5 h-5 text-primary" /><span className="text-2xl font-bold">{score}</span></div>
+              <div className="flex items-center gap-2"><Zap className="w-5 h-5 text-neon-yellow" /><span className="text-lg font-medium">x{streak}</span></div>
             </div>
-
             <Card className="glass-card mb-6 relative overflow-hidden">
               <CardContent className="p-8 text-center">
                 <ScorePopup popups={popups} />
                 <p className="text-sm text-muted-foreground mb-4">Unscramble this word:</p>
                 <div className="flex justify-center gap-2 mb-8">
                   {scrambled.split('').map((char, i) => (
-                    <span
-                      key={i}
-                      className="w-12 h-12 flex items-center justify-center text-2xl font-bold rounded-lg bg-primary/10 border border-primary/30 text-primary uppercase"
-                    >
-                      {char}
-                    </span>
+                    <span key={i} className="w-12 h-12 flex items-center justify-center text-2xl font-bold rounded-lg bg-primary/10 border border-primary/30 text-primary uppercase">{char}</span>
                   ))}
                 </div>
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={userInput}
-                  onChange={handleInputChange}
-                  className="w-full max-w-md mx-auto block text-center text-2xl bg-transparent border-b-2 border-primary/50 focus:border-primary outline-none pb-2 text-foreground"
-                  placeholder="Type your answer..."
-                  autoFocus
-                />
+                <input ref={inputRef} type="text" value={userInput} onChange={handleInputChange} className="w-full max-w-md mx-auto block text-center text-2xl bg-transparent border-b-2 border-primary/50 focus:border-primary outline-none pb-2 text-foreground" placeholder="Type your answer..." autoFocus />
               </CardContent>
             </Card>
-
-            <div className="flex justify-center">
-              <Button variant="ghost" onClick={handleSkip}>Skip Word</Button>
-            </div>
+            <div className="flex justify-center"><Button variant="ghost" onClick={handleSkip}>Skip Word</Button></div>
           </>
         )}
 
@@ -228,9 +196,7 @@ const WordScrambleGame: React.FC<WordScrambleGameProps> = ({ onBack }) => {
             <CardContent className="p-8">
               <Trophy className="w-16 h-16 mx-auto mb-4 text-neon-yellow" />
               <h2 className="text-3xl font-bold mb-2">{score} Points</h2>
-              <p className="text-muted-foreground mb-2">
-                You unscrambled {wordsCompleted} words with a best streak of {bestStreak}!
-              </p>
+              <p className="text-muted-foreground mb-2">You unscrambled {wordsCompleted} words with a best streak of {bestStreak}!</p>
               {user && <p className="text-sm text-primary mb-4">Score saved!</p>}
               <div className="flex justify-center gap-4">
                 <Button onClick={startGame}>Play Again</Button>
