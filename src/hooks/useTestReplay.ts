@@ -94,7 +94,7 @@ export const useReplayPlayer = () => {
   const [currentWpm, setCurrentWpm] = useState(0);
   const [currentAccuracy, setCurrentAccuracy] = useState(100);
   const [errors, setErrors] = useState<Set<number>>(new Set());
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const playReplay = useCallback((replay: TestReplay, speed: number = 1) => {
     setIsPlaying(true);
