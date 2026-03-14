@@ -27,7 +27,7 @@ export const useTypingTest = ({ text, timeLimit, wordLimit, disableBackspace, on
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [errors, setErrors] = useState<Set<number>>(new Set());
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { playKeySound, playErrorSound } = useSound();
 
   const targetText = text.trim();
