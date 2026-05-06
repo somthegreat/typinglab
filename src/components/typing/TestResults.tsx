@@ -25,12 +25,12 @@ const TestResults: React.FC<TestResultsProps> = ({
   antiCheatStatus
 }) => {
   const handleShare = async () => {
-    const shareText = `🎯 Just scored ${stats.wpm} WPM with ${stats.accuracy}% accuracy on TypeMaster! Can you beat my score?`;
+    const shareText = `🎯 Just scored ${stats.wpm} WPM with ${stats.accuracy}% accuracy on Typing Lab! Can you beat my score?`;
     
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'TypeMaster Results',
+          title: 'Typing Lab Results',
           text: shareText,
           url: window.location.origin,
         });

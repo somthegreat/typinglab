@@ -56,7 +56,7 @@ const Navbar: React.FC = () => {
             <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
               <Keyboard className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="text-lg font-semibold hidden sm:block">TypeMaster</span>
+            <span className="text-lg font-semibold hidden sm:block">Typing Lab</span>
           </Link>
 
           {/* Navigation Links */}
