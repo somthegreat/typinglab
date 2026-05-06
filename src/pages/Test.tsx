@@ -19,7 +19,9 @@ const Test: React.FC = () => {
   return (
     <Layout>
       <div className="min-h-[calc(100vh-4rem)] flex flex-col justify-center py-8">
-        <h1 className="sr-only">Typing Test</h1>
+        <h1 className="text-center text-3xl font-bold tracking-tight text-foreground mb-4">
+          Typing Test
+        </h1>
         <TypingTest />
       </div>
     </Layout>
