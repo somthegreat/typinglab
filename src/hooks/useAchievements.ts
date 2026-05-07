@@ -100,11 +100,12 @@ export const useCheckAchievements = () => {
         }
 
         if (shouldEarn) {
-          await supabase.from('user_achievements').insert({
-            user_id: user.id,
-            achievement_id: achievement.id,
+          const { error: rpcError } = await supabase.rpc('award_achievement', {
+            p_achievement_id: achievement.id,
           });
-          newlyEarned.push(achievement);
+          if (!rpcError) {
+            newlyEarned.push(achievement);
+          }
         }
       }
 
