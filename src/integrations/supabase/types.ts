@@ -841,6 +841,10 @@ export type Database = {
       }
     }
     Functions: {
+      award_achievement: {
+        Args: { p_achievement_id: string }
+        Returns: boolean
+      }
       begin_racing: { Args: { p_race_id: string }; Returns: undefined }
       get_leaderboard: {
         Args: { p_limit?: number }
