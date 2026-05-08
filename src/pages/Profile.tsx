@@ -184,6 +184,7 @@ const Profile: React.FC = () => {
                     onChange={handleAvatarUpload}
                     className="hidden"
                     disabled={isUploading}
+                    aria-label="Upload avatar image"
                   />
                 </label>
               </div>
@@ -195,6 +196,7 @@ const Profile: React.FC = () => {
                     onChange={(e) => setNewUsername(e.target.value)}
                     placeholder="New username"
                     className="text-center"
+                    aria-label="New username"
                   />
                   <Button size="icon" variant="ghost" onClick={handleUsernameEdit}>
                     <Check className="w-4 h-4 text-correct" />
