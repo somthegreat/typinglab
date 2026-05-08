@@ -131,6 +131,7 @@ const DataExportImport: React.FC = () => {
             accept=".json"
             onChange={handleFileChange}
             className="hidden"
+            aria-label="Import data file"
           />
           <Button variant="secondary" onClick={handleImportClick} className="gap-2">
             <Upload className="w-4 h-4" />

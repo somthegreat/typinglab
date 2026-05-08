@@ -110,7 +110,7 @@ const Reminders: React.FC = () => {
             <div>
               <label className="text-sm font-medium mb-2 block">Time</label>
               <Select value={selectedTime} onValueChange={setSelectedTime}>
-                <SelectTrigger>
+                <SelectTrigger aria-label="Reminder time">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="max-h-60">
