@@ -870,6 +870,21 @@ export type Database = {
           out_text_content: string
         }[]
       }
+      record_test_result: {
+        Args: {
+          p_accuracy: number
+          p_correct_chars: number
+          p_incorrect_chars: number
+          p_raw_wpm: number
+          p_test_duration: number
+          p_test_mode: string
+          p_text_content: string
+          p_total_chars: number
+          p_word_count: number
+          p_wpm: number
+        }
+        Returns: string
+      }
       start_race: { Args: { p_race_id: string }; Returns: undefined }
       update_user_xp:
         | {
