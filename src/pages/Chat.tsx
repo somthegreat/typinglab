@@ -197,6 +197,7 @@ const Chat: React.FC = () => {
                 placeholder="Type a message..."
                 maxLength={500}
                 className="flex-1"
+                aria-label="Chat message"
               />
               <Button type="submit" disabled={!message.trim() || sendMessage.isPending}>
                 <Send className="w-4 h-4" />
