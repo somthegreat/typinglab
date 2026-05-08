@@ -207,6 +207,7 @@ const DailyChallenge: React.FC = () => {
                 className="absolute opacity-0 pointer-events-none"
                 onKeyDown={handleKeyDownWrapper}
                 autoFocus
+                aria-label="Typing input"
               />
               
               <div className="typing-text leading-loose">
