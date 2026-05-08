@@ -164,6 +164,7 @@ const Friends: React.FC = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by username..."
                 onKeyDown={(e) => e.key === 'Enter' && searchUsers()}
+                aria-label="Search users by username"
               />
               <Button onClick={searchUsers}>Search</Button>
             </div>
