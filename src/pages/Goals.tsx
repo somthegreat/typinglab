@@ -121,7 +121,7 @@ const Goals: React.FC = () => {
               <div>
                 <label className="text-sm font-medium mb-1 block">Goal Type</label>
                 <Select value={goalType} onValueChange={setGoalType}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger aria-label="Goal type"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {GOAL_TYPES.map(t => (
                       <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
@@ -137,12 +137,13 @@ const Goals: React.FC = () => {
                   onChange={e => setTargetValue(e.target.value)}
                   min={1}
                   max={999}
+                  aria-label="Goal target value"
                 />
               </div>
               <div>
                 <label className="text-sm font-medium mb-1 block">Period</label>
                 <Select value={period} onValueChange={setPeriod}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger aria-label="Goal period"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {PERIODS.map(p => (
                       <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
