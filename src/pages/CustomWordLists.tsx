@@ -132,12 +132,14 @@ const CustomWordLists: React.FC = () => {
               placeholder="List name (e.g., Programming Terms)"
               value={newListName}
               onChange={(e) => setNewListName(e.target.value)}
+              aria-label="List name"
             />
             <Textarea
               placeholder="Enter words separated by commas or new lines..."
               value={newWords}
               onChange={(e) => setNewWords(e.target.value)}
               rows={5}
+              aria-label="Words for the list"
             />
             <Button onClick={() => createList.mutate()} disabled={createList.isPending}>
               {createList.isPending ? 'Creating...' : 'Create List'}
