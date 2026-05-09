@@ -9,6 +9,17 @@ const corsHeaders = {
 
 const MAX_MESSAGES = 30;
 const MAX_MESSAGE_LENGTH = 2000;
+const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
+const RATE_LIMIT_MAX = 15; // requests per window per user
+
+const rateLimitMap = new Map<string, { count: number; windowStart: number }>();
+
+const sanitizeStr = (s: unknown, maxLen = 80): string =>
+  String(s ?? "").replace(/[\r\n<>`]/g, " ").slice(0, maxLen);
+const sanitizeNum = (n: unknown): number => {
+  const v = Number(n);
+  return Number.isFinite(v) ? v : 0;
+};
 
 const SYSTEM_PROMPT = `You are TypeFlow Assistant — a friendly, concise AI helper embedded in a typing practice website called TypeFlow. Your job is to help users get the most out of the platform.
 
@@ -98,6 +109,22 @@ serve(async (req) => {
       );
     }
 
+    // Per-user rate limit
+    const userId = String(claimsData.claims.sub || "");
+    const now = Date.now();
+    const entry = rateLimitMap.get(userId);
+    if (entry && now - entry.windowStart < RATE_LIMIT_WINDOW_MS) {
+      if (entry.count >= RATE_LIMIT_MAX) {
+        return new Response(
+          JSON.stringify({ error: "Rate limit exceeded. Please wait a moment." }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      entry.count += 1;
+    } else {
+      rateLimitMap.set(userId, { count: 1, windowStart: now });
+    }
+
     const { messages, userContext } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
@@ -139,17 +166,22 @@ serve(async (req) => {
     let systemPrompt = SYSTEM_PROMPT;
     if (userContext) {
       const parts: string[] = ["\n\n## Current User Stats"];
-      if (userContext.username) parts.push(`- **Username**: ${userContext.username}`);
-      if (userContext.bestWpm != null) parts.push(`- **Best WPM**: ${userContext.bestWpm}`);
-      if (userContext.bestAccuracy != null) parts.push(`- **Best Accuracy**: ${userContext.bestAccuracy}%`);
-      if (userContext.totalTests != null) parts.push(`- **Total Tests**: ${userContext.totalTests}`);
-      if (userContext.totalWords != null) parts.push(`- **Total Words Typed**: ${userContext.totalWords}`);
-      if (userContext.level != null) parts.push(`- **Level**: ${userContext.level}`);
-      if (userContext.xp != null) parts.push(`- **XP**: ${userContext.xp}`);
-      if (userContext.streak != null) parts.push(`- **Current Streak**: ${userContext.streak} days`);
-      if (userContext.skillTier) parts.push(`- **Tier**: ${userContext.skillTier}`);
-      if (userContext.weakKeys && userContext.weakKeys.length > 0) {
-        parts.push(`- **Weak Keys** (highest error rate): ${userContext.weakKeys.map((k: any) => `"${k.key}" (${k.errorRate}% errors)`).join(', ')}`);
+      if (userContext.username) parts.push(`- **Username**: ${sanitizeStr(userContext.username, 50)}`);
+      if (userContext.bestWpm != null) parts.push(`- **Best WPM**: ${sanitizeNum(userContext.bestWpm)}`);
+      if (userContext.bestAccuracy != null) parts.push(`- **Best Accuracy**: ${sanitizeNum(userContext.bestAccuracy)}%`);
+      if (userContext.totalTests != null) parts.push(`- **Total Tests**: ${sanitizeNum(userContext.totalTests)}`);
+      if (userContext.totalWords != null) parts.push(`- **Total Words Typed**: ${sanitizeNum(userContext.totalWords)}`);
+      if (userContext.level != null) parts.push(`- **Level**: ${sanitizeNum(userContext.level)}`);
+      if (userContext.xp != null) parts.push(`- **XP**: ${sanitizeNum(userContext.xp)}`);
+      if (userContext.streak != null) parts.push(`- **Current Streak**: ${sanitizeNum(userContext.streak)} days`);
+      if (userContext.skillTier) parts.push(`- **Tier**: ${sanitizeStr(userContext.skillTier, 20)}`);
+      if (Array.isArray(userContext.weakKeys) && userContext.weakKeys.length > 0) {
+        const safeKeys = userContext.weakKeys.slice(0, 10).map((k: any) => {
+          const key = sanitizeStr(k?.key, 3) || "?";
+          const rate = sanitizeNum(k?.errorRate);
+          return `"${key}" (${rate}% errors)`;
+        });
+        parts.push(`- **Weak Keys** (highest error rate): ${safeKeys.join(", ")}`);
       }
       parts.push("\nUse these stats to give personalized advice. Reference their specific weak keys, suggest appropriate WPM targets, and acknowledge their progress.");
       systemPrompt += parts.join("\n");
