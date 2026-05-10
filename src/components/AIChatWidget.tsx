@@ -111,6 +111,7 @@ const AIChatWidget: React.FC = () => {
                 className="h-8 w-8"
                 onClick={clearChat}
                 title="Clear chat"
+                aria-label="Clear chat"
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </Button>
@@ -119,6 +120,7 @@ const AIChatWidget: React.FC = () => {
                 size="icon"
                 className="h-8 w-8"
                 onClick={() => setIsOpen(false)}
+                aria-label="Close AI Assistant"
               >
                 <X className="w-4 h-4" />
               </Button>
@@ -249,6 +251,7 @@ const AIChatWidget: React.FC = () => {
                 size="icon"
                 className="h-9 w-9 flex-shrink-0"
                 disabled={!input.trim() || isLoading}
+                aria-label="Send message"
               >
                 <Send className="w-3.5 h-3.5" />
               </Button>
