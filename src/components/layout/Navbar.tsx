@@ -91,7 +91,7 @@ const Navbar: React.FC = () => {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-9 w-9">
+                  <Button variant="ghost" size="icon" className="h-9 w-9" aria-label="Open user menu">
                     <User className="w-5 h-5" />
                   </Button>
                 </DropdownMenuTrigger>
