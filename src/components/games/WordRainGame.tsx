@@ -187,7 +187,7 @@ const WordRainGame: React.FC<WordRainGameProps> = ({ onBack }) => {
         {(gameState === 'playing' || gameState === 'paused') && (
           <div className="flex gap-4">
             <Input ref={inputRef} value={input} onChange={handleInput} placeholder="Type the words..." className="text-lg" disabled={gameState === 'paused'} autoFocus />
-            <Button variant="outline" onClick={pauseGame}>{gameState === 'paused' ? <Play className="w-5 h-5" /> : <Pause className="w-5 h-5" />}</Button>
+            <Button variant="outline" onClick={pauseGame} aria-label={gameState === 'paused' ? 'Resume game' : 'Pause game'}>{gameState === 'paused' ? <Play className="w-5 h-5" /> : <Pause className="w-5 h-5" />}</Button>
           </div>
         )}
       </div>
