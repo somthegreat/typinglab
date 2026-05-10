@@ -204,6 +204,7 @@ const Goals: React.FC = () => {
                               variant="ghost"
                               size="icon"
                               onClick={() => deleteGoal.mutate(goal.id)}
+                              aria-label="Delete goal"
                             >
                               <Trash2 className="w-4 h-4 text-destructive" />
                             </Button>
@@ -253,7 +254,7 @@ const Goals: React.FC = () => {
                         <span className="text-sm">
                           {meta.label}: {Number(goal.current_value)}/{Number(goal.target_value)} {meta.unit}
                         </span>
-                        <Button variant="ghost" size="icon" onClick={() => deleteGoal.mutate(goal.id)}>
+                        <Button variant="ghost" size="icon" onClick={() => deleteGoal.mutate(goal.id)} aria-label="Delete expired goal">
                           <Trash2 className="w-3 h-3" />
                         </Button>
                       </div>
