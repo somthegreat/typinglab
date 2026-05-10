@@ -178,7 +178,7 @@ const ZombieSurvivalGame: React.FC<ZombieSurvivalGameProps> = ({ onBack }) => {
     if (!user) return;
     try {
       const { data: profile } = await supabase.from('profiles').select('username').eq('user_id', user.id).single();
-      await supabase.from('game_scores').insert({ user_id: user.id, username: profile?.username || 'Anonymous', game_type: 'zombie_survival', score, level_reached: wave, words_typed: killCount });
+      await supabase.rpc('submit_game_score', { p_game_type: 'zombie_survival', p_score: score, p_level_reached: wave, p_words_typed: killCount });
       await supabase.rpc('update_user_xp', { p_xp_amount: Math.floor(score / 10) });
       toast.success('Score saved!');
     } catch (error) { console.error('Failed to save score:', error); }
