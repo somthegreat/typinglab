@@ -28,21 +28,13 @@ const TournamentPlay: React.FC<TournamentPlayProps> = ({ tournament, onComplete,
     if (!user || submitted) return;
 
     try {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('username')
-        .eq('user_id', user.id)
-        .single();
-
       const score = Math.round(results.wpm * (results.accuracy / 100) * 10);
 
-      await supabase.from('tournament_entries').insert({
-        tournament_id: tournament.id,
-        user_id: user.id,
-        username: profile?.username || 'Anonymous',
-        wpm: results.wpm,
-        accuracy: results.accuracy,
-        score,
+      await supabase.rpc('submit_tournament_entry', {
+        p_tournament_id: tournament.id,
+        p_wpm: results.wpm,
+        p_accuracy: results.accuracy,
+        p_score: score,
       });
 
       await supabase.rpc('update_user_xp', { p_xp_amount: 50 });
