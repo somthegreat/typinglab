@@ -886,6 +886,24 @@ export type Database = {
         Returns: string
       }
       start_race: { Args: { p_race_id: string }; Returns: undefined }
+      submit_game_score: {
+        Args: {
+          p_game_type: string
+          p_level_reached: number
+          p_score: number
+          p_words_typed: number
+        }
+        Returns: string
+      }
+      submit_tournament_entry: {
+        Args: {
+          p_accuracy: number
+          p_score: number
+          p_tournament_id: string
+          p_wpm: number
+        }
+        Returns: string
+      }
       update_user_xp:
         | {
             Args: { p_user_id: string; p_xp_amount: number }

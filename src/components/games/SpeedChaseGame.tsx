@@ -111,7 +111,7 @@ const SpeedChaseGame: React.FC<SpeedChaseGameProps> = ({ onBack }) => {
     if (!user) return;
     try {
       const { data: profile } = await supabase.from('profiles').select('username').eq('user_id', user.id).single();
-      await supabase.from('game_scores').insert({ user_id: user.id, username: profile?.username || 'Anonymous', game_type: 'speed_chase', score, level_reached: maxStreak, words_typed: wordsTyped });
+      await supabase.rpc('submit_game_score', { p_game_type: 'speed_chase', p_score: score, p_level_reached: maxStreak, p_words_typed: wordsTyped });
       await supabase.rpc('update_user_xp', { p_xp_amount: Math.floor(score / 10) });
       toast.success('Score saved!');
     } catch (error) { console.error('Failed to save score:', error); }
