@@ -15,7 +15,7 @@ const SoundSettings: React.FC = () => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
+        <Button variant="ghost" size="icon" className="relative" aria-label="Sound settings">
           {soundEnabled ? (
             <Volume2 className="h-5 w-5" />
           ) : (

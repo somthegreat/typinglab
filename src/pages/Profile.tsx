@@ -198,10 +198,10 @@ const Profile: React.FC = () => {
                     className="text-center"
                     aria-label="New username"
                   />
-                  <Button size="icon" variant="ghost" onClick={handleUsernameEdit}>
+                  <Button size="icon" variant="ghost" onClick={handleUsernameEdit} aria-label="Save username">
                     <Check className="w-4 h-4 text-correct" />
                   </Button>
-                  <Button size="icon" variant="ghost" onClick={() => setIsEditingUsername(false)}>
+                  <Button size="icon" variant="ghost" onClick={() => setIsEditingUsername(false)} aria-label="Cancel editing username">
                     <X className="w-4 h-4 text-destructive" />
                   </Button>
                 </div>
@@ -212,6 +212,7 @@ const Profile: React.FC = () => {
                     size="icon"
                     variant="ghost"
                     className="h-6 w-6"
+                    aria-label="Edit username"
                     onClick={() => {
                       setNewUsername(profile?.username || '');
                       setIsEditingUsername(true);

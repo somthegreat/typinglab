@@ -177,6 +177,7 @@ const Reminders: React.FC = () => {
                     variant="ghost"
                     size="icon"
                     onClick={() => deleteReminder.mutate(reminder.id)}
+                    aria-label="Delete reminder"
                   >
                     <Trash2 className="w-4 h-4 text-destructive" />
                   </Button>

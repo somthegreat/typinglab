@@ -96,7 +96,7 @@ const TestReplayPlayer: React.FC<TestReplayPlayerProps> = ({ replay, onClose }) 
 
         {/* Controls */}
         <div className="flex items-center justify-center gap-4">
-          <Button variant="outline" size="icon" onClick={handleReset}>
+          <Button variant="outline" size="icon" onClick={handleReset} aria-label="Reset replay">
             <RotateCcw className="w-4 h-4" />
           </Button>
           <Button size="lg" onClick={handlePlay} className="gap-2">
