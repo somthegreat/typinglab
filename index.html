@@ -7,6 +7,14 @@
     <meta name="description" content="Master your typing skills with interactive lessons, speed tests, games, and detailed analytics. Track your progress and become a typing pro!">
     <meta name="author" content="Typing Lab" />
     <meta name="theme-color" content="#8b5cf6" />
+
+    <!-- Security headers (meta-tag enforced; CSP frame-ancestors replaces X-Frame-Options) -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.lovable.app https://*.lovable.dev https://cdn.gpteng.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.lovable.app https://*.lovable.dev https://storage.googleapis.com; frame-src 'self' https://*.lovable.app https://*.lovable.dev; frame-ancestors 'self' https://*.lovable.app https://*.lovable.dev; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"
+    />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
     
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json" />
