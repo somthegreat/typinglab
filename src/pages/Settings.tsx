@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Navigate } from 'react-router-dom';
+import SEO from "@/components/SEO";
 
 const Settings: React.FC = () => {
   const { user } = useAuth();
@@ -47,7 +48,9 @@ const Settings: React.FC = () => {
   if (!user) return <Navigate to="/auth" replace />;
 
   return (
-    <Layout>
+    <>
+      <SEO title="Settings & Preferences | TypingLab" description="Customize themes, sounds, keyboard layout, accessibility options, and other TypingLab preferences." path="/settings" />
+      <Layout>
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold gradient-text mb-2">Settings</h1>
@@ -154,6 +157,7 @@ const Settings: React.FC = () => {
         )}
       </div>
     </Layout>
+    </>
   );
 };
 

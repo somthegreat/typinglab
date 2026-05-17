@@ -3,10 +3,13 @@ import { Link } from 'react-router-dom';
 import { Keyboard, Zap, Target, Calendar, ArrowRight, Users, BookOpen, BarChart3, Trophy, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Layout from '@/components/layout/Layout';
+import SEO from "@/components/SEO";
 
 const Index: React.FC = () => {
   return (
-    <Layout>
+    <>
+      <SEO title="TypingLab — Improve Typing Speed & Accuracy" description="Practice typing with real-time tests, lessons, games, and analytics. Track WPM and accuracy, compete with friends, and master your keyboard." path="/" />
+      <Layout>
       {/* Hero Section */}
       <section className="relative min-h-[80vh] flex items-center justify-center">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
@@ -137,6 +140,7 @@ const Index: React.FC = () => {
         </div>
       </section>
     </Layout>
+    </>
   );
 };
 

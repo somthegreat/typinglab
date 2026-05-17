@@ -10,6 +10,7 @@ import { Link } from 'react-router-dom';
 import { Users, Play, Trophy, Zap, Flag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
+import SEO from "@/components/SEO";
 
 const Race: React.FC = () => {
   const { user } = useAuth();
@@ -139,7 +140,9 @@ const Race: React.FC = () => {
 
   if (!user) {
     return (
-      <Layout>
+      <>
+        <SEO title="Multiplayer Typing Race | TypingLab" description="Compete in real-time multiplayer typing races. Challenge friends or random typists and race to the finish line." path="/race" />
+        <Layout>
         <div className="container mx-auto px-4 py-16 text-center">
           <Users className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
           <h2 className="text-2xl font-bold mb-2">Sign in to race</h2>
@@ -149,7 +152,8 @@ const Race: React.FC = () => {
           </Link>
         </div>
       </Layout>
-    );
+      </>
+  );
   }
 
   // Race lobby view

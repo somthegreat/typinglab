@@ -7,6 +7,7 @@ import { useSound } from '@/contexts/SoundContext';
 import { useSaveTestResult } from '@/hooks/useTestResults';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+import SEO from "@/components/SEO";
 
 const FocusMode: React.FC = () => {
   const navigate = useNavigate();
@@ -78,7 +79,9 @@ const FocusMode: React.FC = () => {
   }, []);
 
   return (
-    <div
+    <>
+      <SEO title="Focus Mode — Distraction-Free Typing | TypingLab" description="Enter full-screen distraction-free typing with backspace disabled and auto-saved sessions for deep practice." path="/focus" />
+      <div
       className="fixed inset-0 z-[100] bg-background flex flex-col items-center justify-center cursor-text"
       onClick={() => inputRef.current?.focus()}
     >
@@ -149,6 +152,7 @@ const FocusMode: React.FC = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
 

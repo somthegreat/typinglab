@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Navigate } from 'react-router-dom';
+import SEO from "@/components/SEO";
 
 interface Friend {
   id: string;
@@ -140,7 +141,9 @@ const Friends: React.FC = () => {
   };
 
   return (
-    <Layout>
+    <>
+      <SEO title="Friends & Connections | TypingLab" description="Add friends, accept requests, and compare typing progress with your network on TypingLab." path="/friends" />
+      <Layout>
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-2">
@@ -321,6 +324,7 @@ const Friends: React.FC = () => {
         </Tabs>
       </div>
     </Layout>
+    </>
   );
 };
 

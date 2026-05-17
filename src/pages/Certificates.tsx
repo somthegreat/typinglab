@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { Navigate } from 'react-router-dom';
+import SEO from "@/components/SEO";
 
 interface Certificate {
   id: string;
@@ -63,7 +64,9 @@ const Certificates: React.FC = () => {
   if (!user) return <Navigate to="/auth" replace />;
 
   return (
-    <Layout>
+    <>
+      <SEO title="Your Typing Certificates | TypingLab" description="Earn and download certificates that document your typing speed and accuracy milestones." path="/certificates" />
+      <Layout>
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold gradient-text mb-2">Your Certificates</h1>
@@ -125,6 +128,7 @@ const Certificates: React.FC = () => {
         )}
       </div>
     </Layout>
+    </>
   );
 };
 

@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Calendar, Target, Zap, Trophy, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
+import SEO from "@/components/SEO";
 
 const DailyChallenge: React.FC = () => {
   const { user } = useAuth();
@@ -71,12 +72,15 @@ const DailyChallenge: React.FC = () => {
 
   if (challengeLoading || completionLoading) {
     return (
-      <Layout>
+      <>
+        <SEO title="Daily Typing Challenge | TypingLab" description="Take today's daily typing challenge to build a streak, earn XP, and climb the daily leaderboard." path="/challenge" />
+        <Layout>
         <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[60vh]">
           <div className="animate-pulse text-muted-foreground">Loading challenge...</div>
         </div>
       </Layout>
-    );
+      </>
+  );
   }
 
   if (!user) {

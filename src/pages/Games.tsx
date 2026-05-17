@@ -9,6 +9,7 @@ import TypingDefenseGame from '@/components/games/TypingDefenseGame';
 import WordScrambleGame from '@/components/games/WordScrambleGame';
 import ZombieSurvivalGame from '@/components/games/ZombieSurvivalGame';
 import GameLeaderboard from '@/components/games/GameLeaderboard';
+import SEO from "@/components/SEO";
 
 type GameType = 'menu' | 'word_rain' | 'speed_chase' | 'typing_defense' | 'word_scramble' | 'zombie_survival';
 
@@ -65,7 +66,9 @@ const Games: React.FC = () => {
   if (activeGame === 'zombie_survival') return <ZombieSurvivalGame onBack={() => setActiveGame('menu')} />;
 
   return (
-    <Layout>
+    <>
+      <SEO title="Typing Games — Word Rain, Zombie Survival & More | TypingLab" description="Play fun typing games: Word Rain, Zombie Survival, Speed Chase, Typing Defense, and Word Scramble. Practice while having fun." path="/games" />
+      <Layout>
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-2">
@@ -99,6 +102,7 @@ const Games: React.FC = () => {
         <GameLeaderboard />
       </div>
     </Layout>
+    </>
   );
 };
 

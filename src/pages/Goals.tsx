@@ -12,6 +12,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Navigate, Link } from 'react-router-dom';
 import { addDays, addWeeks, addMonths, format, isPast } from 'date-fns';
+import SEO from "@/components/SEO";
 
 interface TypingGoal {
   id: string;
@@ -102,7 +103,9 @@ const Goals: React.FC = () => {
   const getGoalMeta = (type: string) => GOAL_TYPES.find(t => t.value === type) || GOAL_TYPES[0];
 
   return (
-    <Layout>
+    <>
+      <SEO title="Typing Goals | TypingLab" description="Set personalized typing goals for speed, accuracy, and practice time and track your progress over time." path="/goals" />
+      <Layout>
       <div className="container mx-auto px-4 py-8 max-w-3xl">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold gradient-text mb-2">Typing Goals</h1>
@@ -267,6 +270,7 @@ const Goals: React.FC = () => {
         )}
       </div>
     </Layout>
+    </>
   );
 };
 

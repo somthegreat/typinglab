@@ -7,6 +7,7 @@ import { useSound } from '@/contexts/SoundContext';
 import { Link } from 'react-router-dom';
 import { Target, RefreshCw, Zap } from 'lucide-react';
 import VirtualKeyboard from '@/components/typing/VirtualKeyboard';
+import SEO from "@/components/SEO";
 
 const Practice: React.FC = () => {
   const { user } = useAuth();
@@ -91,7 +92,9 @@ const Practice: React.FC = () => {
 
   if (!user) {
     return (
-      <Layout>
+      <>
+        <SEO title="Focused Typing Practice | TypingLab" description="Target your weak keys and trouble patterns with focused practice drills designed to fix specific typing mistakes." path="/practice" />
+        <Layout>
         <div className="container mx-auto px-4 py-16 text-center">
           <Target className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
           <h2 className="text-2xl font-bold mb-2">Sign in to practice</h2>
@@ -101,7 +104,8 @@ const Practice: React.FC = () => {
           </Link>
         </div>
       </Layout>
-    );
+      </>
+  );
   }
 
   if (isLoading) {

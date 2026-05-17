@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import LessonPractice from '@/components/lessons/LessonPractice';
+import SEO from "@/components/SEO";
 
 const Lessons: React.FC = () => {
   const { user } = useAuth();
@@ -15,7 +16,9 @@ const Lessons: React.FC = () => {
 
   if (!user) {
     return (
-      <Layout>
+      <>
+        <SEO title="Typing Lessons — Learn Touch Typing | TypingLab" description="Structured typing lessons from home row basics to advanced drills and code typing. Build muscle memory and proper finger placement." path="/lessons" />
+        <Layout>
         <div className="container mx-auto px-4 py-16 text-center">
           <BookOpen className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
           <h2 className="text-2xl font-bold mb-2">Sign in to access lessons</h2>
@@ -25,7 +28,8 @@ const Lessons: React.FC = () => {
           </Link>
         </div>
       </Layout>
-    );
+      </>
+  );
   }
 
   const isLoading = lessonsLoading || progressLoading;

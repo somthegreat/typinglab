@@ -12,6 +12,7 @@ import WeakKeysDisplay from '@/components/WeakKeysDisplay';
 import KeyboardHeatmap from '@/components/KeyboardHeatmap';
 import DataExportImport from '@/components/DataExportImport';
 import PracticeStreaksCalendar from '@/components/PracticeStreaksCalendar';
+import SEO from "@/components/SEO";
 
 const Stats: React.FC = () => {
   const { user } = useAuth();
@@ -20,7 +21,9 @@ const Stats: React.FC = () => {
 
   if (!user) {
     return (
-      <Layout>
+      <>
+        <SEO title="Your Typing Stats & Analytics | TypingLab" description="Detailed typing analytics: WPM trends, accuracy heatmaps, weak keys, error patterns, and session replays to guide your practice." path="/stats" />
+        <Layout>
         <div className="container mx-auto px-4 py-16 text-center">
           <BarChart3 className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
           <h2 className="text-xl font-semibold mb-2">Sign in to track your progress</h2>
@@ -30,7 +33,8 @@ const Stats: React.FC = () => {
           </Link>
         </div>
       </Layout>
-    );
+      </>
+  );
   }
 
   const isLoading = resultsLoading || profileLoading;
