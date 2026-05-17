@@ -11,6 +11,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Link, Navigate } from 'react-router-dom';
 import CustomTypingTest from '@/components/typing/CustomTypingTest';
+import SEO from "@/components/SEO";
 
 interface WordList {
   id: string;
@@ -78,7 +79,9 @@ const CustomWordLists: React.FC = () => {
   if (practiceList && !practiceCompleted) {
     const practiceText = practiceList.words.sort(() => Math.random() - 0.5).slice(0, 20).join(' ');
     return (
-      <Layout>
+      <>
+        <SEO title="Custom Word Lists | TypingLab" description="Create and manage your own custom word lists to practice exactly the vocabulary or patterns you need." path="/word-lists" />
+        <Layout>
         <div className="container mx-auto px-4 py-8">
           <Button variant="ghost" onClick={() => setPracticeList(null)} className="mb-4">
             ← Back to Lists
@@ -93,7 +96,8 @@ const CustomWordLists: React.FC = () => {
           />
         </div>
       </Layout>
-    );
+      </>
+  );
   }
 
   if (practiceCompleted) {

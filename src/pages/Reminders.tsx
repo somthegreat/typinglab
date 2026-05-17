@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Navigate } from 'react-router-dom';
+import SEO from "@/components/SEO";
 
 interface Reminder {
   id: string;
@@ -92,7 +93,9 @@ const Reminders: React.FC = () => {
   if (!user) return <Navigate to="/auth" replace />;
 
   return (
-    <Layout>
+    <>
+      <SEO title="Practice Reminders | TypingLab" description="Schedule daily reminders to keep your typing practice consistent and build a lasting habit." path="/reminders" />
+      <Layout>
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold gradient-text mb-2">Practice Reminders</h1>
@@ -192,6 +195,7 @@ const Reminders: React.FC = () => {
         </p>
       </div>
     </Layout>
+    </>
   );
 };
 

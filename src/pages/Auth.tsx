@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Keyboard, Mail, Lock, User, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Layout from '@/components/layout/Layout';
+import SEO from "@/components/SEO";
 
 const Auth: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -42,7 +43,9 @@ const Auth: React.FC = () => {
   };
 
   return (
-    <Layout showNav={false}>
+    <>
+      <SEO title="Sign In or Create Account | TypingLab" description="Sign in or create your free TypingLab account to save progress, unlock achievements, and compete on global leaderboards." path="/auth" />
+      <Layout showNav={false}>
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
         <div className="absolute top-1/3 left-1/3 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
@@ -99,6 +102,7 @@ const Auth: React.FC = () => {
         </div>
       </div>
     </Layout>
+    </>
   );
 };
 

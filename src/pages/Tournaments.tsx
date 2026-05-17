@@ -11,6 +11,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { format, isPast, isFuture, isWithinInterval } from 'date-fns';
 import TournamentPlay from '@/components/tournaments/TournamentPlay';
+import SEO from "@/components/SEO";
 
 interface Tournament {
   id: string;
@@ -110,7 +111,9 @@ const Tournaments: React.FC = () => {
 
   if (activeTournament) {
     return (
-      <TournamentPlay
+      <>
+        <SEO title="Typing Tournaments | TypingLab" description="Join scheduled typing tournaments, compete head-to-head, and earn ranking points against the community." path="/tournaments" />
+        <TournamentPlay
         tournament={activeTournament}
         onComplete={() => {
           setActiveTournament(null);
@@ -118,7 +121,8 @@ const Tournaments: React.FC = () => {
         }}
         onBack={() => setActiveTournament(null)}
       />
-    );
+      </>
+  );
   }
 
   return (

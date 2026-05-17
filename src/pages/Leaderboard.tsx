@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Trophy, Medal, Award, User, Zap, Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import SEO from "@/components/SEO";
 
 const Leaderboard: React.FC = () => {
   const [filter, setFilter] = useState<TimeFilter>('all');
@@ -38,7 +39,9 @@ const Leaderboard: React.FC = () => {
   };
 
   return (
-    <Layout>
+    <>
+      <SEO title="Global Typing Leaderboard | TypingLab" description="See how your typing speed and accuracy rank against typists worldwide on the global TypingLab leaderboard." path="/leaderboard" />
+      <Layout>
       <div className="container max-w-4xl mx-auto px-4 py-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold gradient-text mb-2">Leaderboard</h1>
@@ -130,6 +133,7 @@ const Leaderboard: React.FC = () => {
         )}
       </div>
     </Layout>
+    </>
   );
 };
 

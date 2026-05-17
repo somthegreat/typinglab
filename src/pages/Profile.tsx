@@ -11,6 +11,7 @@ import { User, Keyboard, Target, Trophy, Flame, Calendar, Edit2, Check, X } from
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Navigate } from 'react-router-dom';
+import SEO from "@/components/SEO";
 
 const Profile: React.FC = () => {
   const { user } = useAuth();
@@ -140,12 +141,15 @@ const Profile: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Layout>
+      <>
+        <SEO title="Your Profile | TypingLab" description="Manage your TypingLab profile, username, avatar, level progress, and exported data." path="/profile" />
+        <Layout>
         <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[60vh]">
           <div className="animate-pulse text-muted-foreground">Loading profile...</div>
         </div>
       </Layout>
-    );
+      </>
+  );
   }
 
   const stats = [

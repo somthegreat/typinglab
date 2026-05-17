@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
+import SEO from "@/components/SEO";
 
 const iconMap: Record<string, React.ElementType> = {
   Trophy,
@@ -24,7 +25,9 @@ const Achievements: React.FC = () => {
 
   if (!user) {
     return (
-      <Layout>
+      <>
+        <SEO title="Achievements & Badges | TypingLab" description="Unlock typing achievements and badges as you hit milestones. Track streaks, speed records, and personal bests." path="/achievements" />
+        <Layout>
         <div className="container mx-auto px-4 py-16 text-center">
           <Trophy className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
           <h2 className="text-2xl font-bold mb-2">Sign in to earn achievements</h2>
@@ -34,7 +37,8 @@ const Achievements: React.FC = () => {
           </Link>
         </div>
       </Layout>
-    );
+      </>
+  );
   }
 
   const isLoading = achievementsLoading || userLoading;

@@ -12,6 +12,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Navigate } from 'react-router-dom';
 import { format } from 'date-fns';
+import SEO from "@/components/SEO";
 
 interface ChatMessage {
   id: string;
@@ -136,7 +137,9 @@ const Chat: React.FC = () => {
   };
 
   return (
-    <Layout>
+    <>
+      <SEO title="Global Chat | TypingLab" description="Chat with typists from around the world in the TypingLab global chat room." path="/chat" />
+      <Layout>
       <div className="container mx-auto px-4 py-8 max-w-3xl h-[calc(100vh-200px)]">
         <Card className="glass-card h-full flex flex-col">
           <CardHeader className="flex-row items-center justify-between border-b">
@@ -207,6 +210,7 @@ const Chat: React.FC = () => {
         </Card>
       </div>
     </Layout>
+    </>
   );
 };
 
