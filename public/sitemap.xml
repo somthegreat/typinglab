@@ -13,4 +13,9 @@
   <url><loc>https://typinglab.lovable.app/stats</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://typinglab.lovable.app/focus</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://typinglab.lovable.app/auth</loc><changefreq>monthly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://typinglab.lovable.app/profile</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://typinglab.lovable.app/friends</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://typinglab.lovable.app/chat</loc><changefreq>daily</changefreq><priority>0.5</priority></url>
+  <url><loc>https://typinglab.lovable.app/word-lists</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://typinglab.lovable.app/reminders</loc><changefreq>weekly</changefreq><priority>0.4</priority></url>
 </urlset>
