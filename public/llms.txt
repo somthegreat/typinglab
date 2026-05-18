@@ -1,0 +1,25 @@
+# TypingLab
+
+> Practice typing with real-time tests, lessons, games, and detailed analytics. Track WPM and accuracy, compete with friends, and master your keyboard.
+
+TypingLab is a free, browser-based typing practice platform. Improve speed and accuracy with structured lessons, timed tests, multiplayer races, daily challenges, and typing games. Includes detailed stats, achievements, leaderboards, and support for multiple keyboard layouts (QWERTY, Dvorak, Colemak, AZERTY).
+
+## Pages
+
+- [Home](/): Overview of TypingLab and quick links to start typing.
+- [Typing Test](/test): Customizable WPM and accuracy speed tests.
+- [Lessons](/lessons): Progressive typing lessons and finger exercises.
+- [Practice](/practice): Focused drills targeting your weak keys.
+- [Daily Challenge](/challenge): A new typing challenge every day.
+- [Games](/games): Interactive typing games like Word Rain and Zombie Survival.
+- [Multiplayer Race](/race): Real-time typing races against other players.
+- [Tournaments](/tournaments): Compete in scheduled typing tournaments.
+- [Leaderboard](/leaderboard): Global rankings for speed and accuracy.
+- [Achievements](/achievements): Badges and milestones to unlock.
+- [Stats](/stats): Personal analytics, heatmaps, and progress charts.
+- [Custom Word Lists](/word-lists): Create and practice with your own word sets.
+- [Certificates](/certificates): Earn certificates for typing milestones.
+
+## Optional
+
+- [Sitemap](/sitemap.xml): XML sitemap of all public routes.
