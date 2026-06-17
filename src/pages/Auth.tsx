@@ -8,6 +8,7 @@ import { Keyboard, Mail, Lock, User, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Layout from '@/components/layout/Layout';
 import SEO from "@/components/SEO";
+import { isDisposableEmail } from '@/lib/disposableEmails';
 
 const Auth: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -30,6 +31,9 @@ const Auth: React.FC = () => {
         toast({ title: 'Welcome back!', description: 'You have signed in successfully.' });
         navigate('/test');
       } else {
+        if (isDisposableEmail(email)) {
+          throw new Error('Disposable or temporary email addresses are not allowed. Please use a permanent email.');
+        }
         const { error } = await signUp(email, password, username);
         if (error) throw error;
         toast({ title: 'Account created!', description: 'Welcome to TypingMaster!' });
