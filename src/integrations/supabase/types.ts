@@ -205,6 +205,21 @@ export type Database = {
         }
         Relationships: []
       }
+      disposable_email_domains: {
+        Row: {
+          added_at: string
+          domain: string
+        }
+        Insert: {
+          added_at?: string
+          domain: string
+        }
+        Update: {
+          added_at?: string
+          domain?: string
+        }
+        Relationships: []
+      }
       friendships: {
         Row: {
           created_at: string
@@ -870,6 +885,7 @@ export type Database = {
           out_text_content: string
         }[]
       }
+      is_disposable_email: { Args: { p_email: string }; Returns: boolean }
       record_test_result: {
         Args: {
           p_accuracy: number
