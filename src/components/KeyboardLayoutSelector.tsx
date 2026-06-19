@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/popover';
 import { Keyboard } from 'lucide-react';
 
-export type KeyboardLayout = 'qwerty' | 'dvorak' | 'colemak';
+export type KeyboardLayout = 'qwerty' | 'dvorak' | 'colemak' | 'azerty';
 
 interface KeyboardLayoutSelectorProps {
   layout: KeyboardLayout;
@@ -16,6 +16,7 @@ interface KeyboardLayoutSelectorProps {
 
 const layouts: { value: KeyboardLayout; label: string }[] = [
   { value: 'qwerty', label: 'QWERTY' },
+  { value: 'azerty', label: 'AZERTY' },
   { value: 'dvorak', label: 'Dvorak' },
   { value: 'colemak', label: 'Colemak' },
 ];
