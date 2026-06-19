@@ -1,5 +1,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
+import HandsGuide from './HandsGuide';
 
 export type KeyboardLayout = 'qwerty' | 'dvorak' | 'colemak';
 
@@ -73,6 +74,20 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
   const expectedChar = targetText[currentIndex]?.toLowerCase() || '';
   const lastTypedCorrect = currentIndex > 0 && !errors.has(currentIndex - 1);
   const lastTypedIncorrect = currentIndex > 0 && errors.has(currentIndex - 1);
+
+  // Determine which finger should press the current expected key
+  let activeFinger: number | null = null;
+  if (expectedChar === ' ') {
+    activeFinger = 8; // thumb (space)
+  } else if (expectedChar) {
+    for (let r = 0; r < keyboardLayout.length; r++) {
+      const idx = keyboardLayout[r].indexOf(expectedChar);
+      if (idx !== -1) {
+        activeFinger = getFingerForKey(expectedChar, r, idx);
+        break;
+      }
+    }
+  }
   
   const getKeyClass = (key: string, rowIndex: number, keyIndex: number) => {
     const normalizedKey = key.toLowerCase();
@@ -146,6 +161,9 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
           <span>Middle+</span>
         </div>
       </div>
+
+      {/* Animated hands showing which finger to use */}
+      <HandsGuide activeFinger={activeFinger} />
     </div>
   );
 };
