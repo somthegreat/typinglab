@@ -331,7 +331,7 @@ const TypingTest: React.FC = () => {
 
         {!isStarted && (
           <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-xl">
-            <p className="text-muted-foreground">Click here and start typing...</p>
+            <p className="text-muted-foreground">Press any button to start</p>
           </div>
         )}
       </div>
