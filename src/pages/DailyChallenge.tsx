@@ -230,9 +230,9 @@ const DailyChallenge: React.FC = () => {
                 })}
               </div>
 
-              {!isStarted && (
+            {!isStarted && (
                 <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm rounded-2xl">
-                  <p className="text-muted-foreground text-lg">Click here and start typing...</p>
+                  <p className="text-muted-foreground text-lg">Press any button to start</p>
                 </div>
               )}
             </div>
