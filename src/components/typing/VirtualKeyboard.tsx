@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import HandsGuide from './HandsGuide';
+import { Button } from '@/components/ui/button';
+import { Hand as HandIcon } from 'lucide-react';
 
-export type KeyboardLayout = 'qwerty' | 'dvorak' | 'colemak';
+export type KeyboardLayout = 'qwerty' | 'dvorak' | 'colemak' | 'azerty';
 
 interface VirtualKeyboardProps {
   currentKey: string;
@@ -33,6 +35,13 @@ const keyboardLayouts: Record<KeyboardLayout, string[][]> = {
     ['q', 'w', 'f', 'p', 'g', 'j', 'l', 'u', 'y', ';', '[', ']', '\\'],
     ['a', 'r', 's', 't', 'd', 'h', 'n', 'e', 'i', 'o', "'"],
     ['z', 'x', 'c', 'v', 'b', 'k', 'm', ',', '.', '/'],
+    [' '],
+  ],
+  azerty: [
+    ['²', '&', 'é', '"', "'", '(', '-', 'è', '_', 'ç', 'à', ')', '='],
+    ['a', 'z', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '^', '$', '*'],
+    ['q', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'ù'],
+    ['w', 'x', 'c', 'v', 'b', 'n', ',', ';', ':', '!'],
     [' '],
   ],
 };
@@ -71,6 +80,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
   layout = 'qwerty'
 }) => {
   const keyboardLayout = keyboardLayouts[layout];
+  const [showFingerMap, setShowFingerMap] = useState(true);
   const expectedChar = targetText[currentIndex]?.toLowerCase() || '';
   const lastTypedCorrect = currentIndex > 0 && !errors.has(currentIndex - 1);
   const lastTypedIncorrect = currentIndex > 0 && errors.has(currentIndex - 1);
@@ -101,8 +111,11 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
     if (isPressed && lastTypedCorrect) {
       return 'bg-correct text-primary-foreground scale-95 shadow-lg';
     }
-    if (isCurrentKey) {
+    if (isCurrentKey && showFingerMap) {
       return `${fingerColors[Math.min(finger, 5)]} border-2 animate-pulse scale-105`;
+    }
+    if (isCurrentKey) {
+      return 'bg-primary/20 border-2 border-primary animate-pulse scale-105';
     }
     return 'bg-secondary text-secondary-foreground border border-border';
   };
@@ -115,6 +128,21 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
 
   return (
     <div className="flex flex-col items-center gap-1.5 p-4 glass-card rounded-xl">
+      {/* Top bar: finger map toggle */}
+      <div className="w-full flex justify-end -mt-1 mb-1">
+        <Button
+          type="button"
+          variant={showFingerMap ? 'secondary' : 'ghost'}
+          size="sm"
+          className="gap-2 h-7 px-2 text-xs"
+          onClick={() => setShowFingerMap((v) => !v)}
+          aria-pressed={showFingerMap}
+          title="Toggle finger mapping"
+        >
+          <HandIcon className="w-3.5 h-3.5" />
+          {showFingerMap ? 'Finger map: On' : 'Finger map: Off'}
+        </Button>
+      </div>
       {keyboardLayout.map((row, rowIndex) => (
         <div key={rowIndex} className="flex gap-1.5 justify-center">
           {row.map((key, keyIndex) => (
@@ -135,7 +163,8 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
       ))}
       
       {/* Finger placement guide */}
-      <div className="flex gap-4 mt-4 text-xs text-muted-foreground">
+      {showFingerMap && (
+      <div className="flex flex-wrap gap-4 mt-4 text-xs text-muted-foreground justify-center">
         <div className="flex items-center gap-1">
           <div className="w-3 h-3 rounded bg-neon-pink/40" />
           <span>Pinky</span>
@@ -161,9 +190,10 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
           <span>Middle+</span>
         </div>
       </div>
+      )}
 
       {/* Animated hands showing which finger to use */}
-      <HandsGuide activeFinger={activeFinger} />
+      {showFingerMap && <HandsGuide activeFinger={activeFinger} />}
     </div>
   );
 };
