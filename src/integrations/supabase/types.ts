@@ -118,6 +118,45 @@ export type Database = {
           },
         ]
       }
+      char_stats: {
+        Row: {
+          correct_count: number
+          created_at: string
+          error_count: number
+          id: string
+          key_char: string
+          last_seen: string
+          total_count: number
+          total_latency_ms: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          correct_count?: number
+          created_at?: string
+          error_count?: number
+          id?: string
+          key_char: string
+          last_seen?: string
+          total_count?: number
+          total_latency_ms?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          correct_count?: number
+          created_at?: string
+          error_count?: number
+          id?: string
+          key_char?: string
+          last_seen?: string
+          total_count?: number
+          total_latency_ms?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           created_at: string
@@ -205,6 +244,42 @@ export type Database = {
         }
         Relationships: []
       }
+      difficult_words: {
+        Row: {
+          correct_count: number
+          created_at: string
+          error_count: number
+          id: string
+          last_seen: string
+          total_count: number
+          updated_at: string
+          user_id: string
+          word: string
+        }
+        Insert: {
+          correct_count?: number
+          created_at?: string
+          error_count?: number
+          id?: string
+          last_seen?: string
+          total_count?: number
+          updated_at?: string
+          user_id: string
+          word: string
+        }
+        Update: {
+          correct_count?: number
+          created_at?: string
+          error_count?: number
+          id?: string
+          last_seen?: string
+          total_count?: number
+          updated_at?: string
+          user_id?: string
+          word?: string
+        }
+        Relationships: []
+      }
       disposable_email_domains: {
         Row: {
           added_at: string
@@ -277,6 +352,42 @@ export type Database = {
           user_id?: string
           username?: string | null
           words_typed?: number | null
+        }
+        Relationships: []
+      }
+      key_combinations: {
+        Row: {
+          combo: string
+          correct_count: number
+          created_at: string
+          error_count: number
+          id: string
+          last_seen: string
+          total_count: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          combo: string
+          correct_count?: number
+          created_at?: string
+          error_count?: number
+          id?: string
+          last_seen?: string
+          total_count?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          combo?: string
+          correct_count?: number
+          created_at?: string
+          error_count?: number
+          id?: string
+          last_seen?: string
+          total_count?: number
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -886,6 +997,7 @@ export type Database = {
         }[]
       }
       is_disposable_email: { Args: { p_email: string }; Returns: boolean }
+      record_char_stats: { Args: { p_payload: Json }; Returns: undefined }
       record_test_result: {
         Args: {
           p_accuracy: number
