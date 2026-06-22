@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Keyboard, User, LogOut, ChevronDown, Target, Swords, TrendingUp, Gamepad2, Trophy, Focus, Crosshair, BarChart3, Award, Medal, Users, MessageCircle, ListChecks, ScrollText, Settings, Bell } from 'lucide-react';
+import { Keyboard, User, LogOut, ChevronDown, Target, Swords, TrendingUp, Gamepad2, Trophy, Focus, Crosshair, BarChart3, Award, Medal, Users, MessageCircle, ListChecks, ScrollText, Settings, Bell, Brain, Sparkles, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
@@ -26,6 +26,13 @@ const Navbar: React.FC = () => {
     { to: '/lessons', label: 'Lessons', icon: ScrollText },
     { to: '/challenge', label: 'Daily Challenge', icon: Target },
     { to: '/word-lists', label: 'Custom Word Lists', icon: ListChecks },
+  ];
+
+  const learnLinks = [
+    { to: '/learn', label: 'Dashboard', icon: Brain },
+    { to: '/learn/session', label: 'Adaptive Drill', icon: Zap },
+    { to: '/learn/coach', label: 'AI Coach', icon: Sparkles },
+    { to: '/learn/analytics', label: 'Analytics', icon: BarChart3 },
   ];
 
   const competeLinks = [
@@ -61,6 +68,13 @@ const Navbar: React.FC = () => {
 
           {/* Navigation Links */}
           <div className="hidden md:flex items-center gap-1">
+            {/* Learn (adaptive) */}
+            <NavDropdown
+              label="Learn"
+              links={learnLinks}
+              isActive={isInCategory(learnLinks)}
+            />
+
             {/* Practice dropdown */}
             <NavDropdown
               label="Practice"
