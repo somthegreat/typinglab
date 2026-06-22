@@ -131,6 +131,7 @@ const TypingTest: React.FC = () => {
     reset();
     antiCheat.reset();
     replay.reset();
+    keyTimestamps.current = [];
     previousWpmRef.current = 0;
     setShowResults(false);
     setShowReplayPlayer(false);
