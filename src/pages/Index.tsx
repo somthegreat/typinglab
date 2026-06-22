@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Keyboard, Zap, Target, Calendar, ArrowRight, Users, BookOpen, BarChart3, Trophy, Sparkles } from 'lucide-react';
+import { Keyboard, Zap, Target, Calendar, ArrowRight, Users, BookOpen, BarChart3, Trophy, Sparkles, Brain } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Layout from '@/components/layout/Layout';
 import SEO from "@/components/SEO";
@@ -17,32 +17,32 @@ const Index: React.FC = () => {
         <div className="container mx-auto px-4 text-center relative z-10">
           <div className="animate-fade-up max-w-2xl mx-auto">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-              <Sparkles className="w-4 h-4" />
-              Improve your typing skills today
+              <Brain className="w-4 h-4" />
+              Adaptive AI typing tutor
             </div>
             
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 leading-tight tracking-tight">
-              Master Your
-              <span className="gradient-text block">Typing Speed</span>
+              Type smarter,
+              <span className="gradient-text block">not just faster.</span>
             </h1>
             
             <p className="text-lg text-muted-foreground max-w-lg mx-auto mb-8 leading-relaxed">
-              Build speed and accuracy with real-time feedback, structured lessons, 
-              and compete with friends in multiplayer races.
+              TypingLab tracks every keystroke, finds your weakest letters, and
+              generates personalized drills that adapt as you improve.
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Link to="/test">
+              <Link to="/learn">
                 <Button size="lg" className="gap-2 px-8 h-12 text-base font-medium">
-                  <Keyboard className="w-5 h-5" />
-                  Start Typing Test
+                  <Brain className="w-5 h-5" />
+                  Start Adaptive Learning
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
-              <Link to="/lessons">
+              <Link to="/test">
                 <Button variant="outline" size="lg" className="gap-2 px-8 h-12 text-base font-medium">
-                  <BookOpen className="w-5 h-5" />
-                  Learn to Type
+                  <Keyboard className="w-5 h-5" />
+                  Quick Typing Test
                 </Button>
               </Link>
             </div>
