@@ -12,6 +12,8 @@ import TextSettings, { FontSize, LineHeight, getFontSizeClass, getLineHeightClas
 import { useSaveTestResult } from '@/hooks/useTestResults';
 import { useCheckAchievements } from '@/hooks/useAchievements';
 import { useUpdateWeakKeys } from '@/hooks/useWeakKeys';
+import { useRecordCharStats } from '@/hooks/useAdaptive';
+import { buildPayload } from '@/lib/adaptive/tracker';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSound } from '@/contexts/SoundContext';
 import { useAntiCheat } from '@/hooks/useAntiCheat';
@@ -45,6 +47,8 @@ const TypingTest: React.FC = () => {
   const saveTestResult = useSaveTestResult();
   const checkAchievements = useCheckAchievements();
   const updateWeakKeys = useUpdateWeakKeys();
+  const recordCharStats = useRecordCharStats();
+  const keyTimestamps = React.useRef<number[]>([]);
   const { playKeySound, playErrorSound, playSuccessSound } = useSound();
   const antiCheat = useAntiCheat();
   const replay = useTestReplay();
@@ -91,6 +95,18 @@ const TypingTest: React.FC = () => {
         }
       });
       await updateWeakKeys.mutateAsync(keyErrors);
+
+      // Feed adaptive engine
+      try {
+        const payload = buildPayload({
+          targetText,
+          errors,
+          keyTimestamps: keyTimestamps.current,
+        });
+        await recordCharStats.mutateAsync(payload);
+      } catch (e) {
+        console.error('adaptive record failed', e);
+      }
     }
   };
 
@@ -115,6 +131,7 @@ const TypingTest: React.FC = () => {
     reset();
     antiCheat.reset();
     replay.reset();
+    keyTimestamps.current = [];
     previousWpmRef.current = 0;
     setShowResults(false);
     setShowReplayPlayer(false);
@@ -153,6 +170,9 @@ const TypingTest: React.FC = () => {
 
   const handleKeyDownWrapper = (e: React.KeyboardEvent<HTMLInputElement>) => {
     setPressedKey(e.key);
+    if (e.key.length === 1) {
+      keyTimestamps.current[currentIndex] = performance.now();
+    }
     
     // Start recording on first keypress
     if (!replay.isRecording && e.key.length === 1) {

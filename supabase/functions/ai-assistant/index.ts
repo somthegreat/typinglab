@@ -111,14 +111,147 @@ serve(async (req) => {
     const userId = String(claimsData.claims.sub || "");
     // Ignore any client-supplied userContext to prevent prompt injection via
     // attacker-controlled profile fields. We fetch trusted values server-side.
-    const { messages } = await req.json();
+    const body = await req.json();
+    const { messages, mode } = body ?? {};
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    // Validate messages input
+    // ---------- COACH MODE ----------
+    if (mode === "coach") {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("username, best_wpm, best_accuracy, total_tests_completed, current_streak, skill_tier, level")
+        .eq("user_id", userId)
+        .maybeSingle();
+      const { data: chars } = await supabase
+        .from("char_stats")
+        .select("key_char, correct_count, error_count, total_count, total_latency_ms")
+        .eq("user_id", userId);
+      const { data: combos } = await supabase
+        .from("key_combinations")
+        .select("combo, correct_count, error_count, total_count")
+        .eq("user_id", userId)
+        .order("error_count", { ascending: false })
+        .limit(15);
+      const { data: words } = await supabase
+        .from("difficult_words")
+        .select("word, error_count, total_count")
+        .eq("user_id", userId)
+        .order("error_count", { ascending: false })
+        .limit(10);
+      const { data: recentTests } = await supabase
+        .from("test_results")
+        .select("wpm, accuracy, created_at")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(20);
+
+      const weakChars = (chars ?? [])
+        .filter((c: any) => c.total_count >= 10)
+        .map((c: any) => ({
+          key: sanitizeStr(c.key_char, 3),
+          accuracy: c.total_count ? Math.round((c.correct_count / c.total_count) * 100) : 100,
+          avg_ms: c.total_count ? Math.round(c.total_latency_ms / c.total_count) : 0,
+          samples: c.total_count,
+        }))
+        .sort((a: any, b: any) => a.accuracy - b.accuracy)
+        .slice(0, 8);
+
+      const coachPrompt = `You are TypingLab's personal typing coach. Respond ONLY with valid JSON matching exactly this shape:
+{"summary": string (1-2 sentences), "recommendations": string[] (exactly 3 actionable items), "next_drill": string (1 sentence, names letters or words to drill), "common_mistake": string (1-2 sentences explaining the user's most frequent error pattern)}
+
+No prose outside JSON. No markdown code fences.`;
+
+      const userPayload = {
+        profile: profile
+          ? {
+              best_wpm: sanitizeNum(profile.best_wpm),
+              best_accuracy: sanitizeNum(profile.best_accuracy),
+              tier: sanitizeStr(profile.skill_tier, 20),
+              streak: sanitizeNum(profile.current_streak),
+              level: sanitizeNum(profile.level),
+              total_tests: sanitizeNum(profile.total_tests_completed),
+            }
+          : null,
+        recent_avg_wpm:
+          recentTests && recentTests.length
+            ? Math.round(
+                recentTests.reduce((s: number, r: any) => s + (r.wpm || 0), 0) / recentTests.length
+              )
+            : null,
+        recent_avg_accuracy:
+          recentTests && recentTests.length
+            ? Math.round(
+                recentTests.reduce((s: number, r: any) => s + (r.accuracy || 0), 0) / recentTests.length
+              )
+            : null,
+        weak_letters: weakChars,
+        weak_combos: (combos ?? []).slice(0, 8).map((c: any) => ({
+          combo: sanitizeStr(c.combo, 6),
+          error_rate: c.total_count ? Math.round((c.error_count / c.total_count) * 100) : 0,
+        })),
+        difficult_words: (words ?? []).slice(0, 8).map((w: any) => sanitizeStr(w.word, 30)),
+      };
+
+      const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-3-flash-preview",
+          messages: [
+            { role: "system", content: coachPrompt },
+            { role: "user", content: `User stats JSON:\n${JSON.stringify(userPayload)}` },
+          ],
+          response_format: { type: "json_object" },
+        }),
+      });
+
+      if (!aiRes.ok) {
+        if (aiRes.status === 429) {
+          return new Response(
+            JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),
+            { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        if (aiRes.status === 402) {
+          return new Response(
+            JSON.stringify({ error: "AI credits exhausted. Please try again later." }),
+            { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        const t = await aiRes.text();
+        console.error("Coach AI error", aiRes.status, t);
+        return new Response(JSON.stringify({ error: "AI service unavailable." }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const aiJson = await aiRes.json();
+      const content: string = aiJson?.choices?.[0]?.message?.content ?? "{}";
+      let parsed: any;
+      try {
+        parsed = JSON.parse(content);
+      } catch {
+        parsed = {
+          summary: "Keep practicing daily to build consistency.",
+          recommendations: ["Practice 10 minutes a day", "Focus on accuracy before speed", "Run a focused drill on your weakest letters"],
+          next_drill: "Run an adaptive session focused on your weakest letters.",
+          common_mistake: "Not enough data yet — complete a few more sessions for personalized feedback.",
+        };
+      }
+      return new Response(JSON.stringify(parsed), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // ---------- CHAT MODE (existing) ----------
     if (!Array.isArray(messages) || messages.length === 0) {
       return new Response(
         JSON.stringify({ error: "Messages array is required." }),

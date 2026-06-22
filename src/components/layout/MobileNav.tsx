@@ -1,6 +1,6 @@
 import React, { forwardRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Keyboard, BookOpen, BarChart3, Users, Target, MoreHorizontal, X, Swords, Trophy, Gamepad2, Medal, Award, MessageCircle, ListChecks, ScrollText, Focus, Crosshair, Bell, Settings as SettingsIcon } from 'lucide-react';
+import { Keyboard, BookOpen, BarChart3, Users, Target, MoreHorizontal, X, Swords, Trophy, Gamepad2, Medal, Award, MessageCircle, ListChecks, ScrollText, Focus, Crosshair, Bell, Settings as SettingsIcon, Brain, Sparkles, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
@@ -9,16 +9,25 @@ const MobileNav = forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>((pr
   const [open, setOpen] = useState(false);
 
   const mainLinks = [
+    { to: '/learn', label: 'Learn', icon: Brain },
     { to: '/test', label: 'Type', icon: Keyboard },
     { to: '/race', label: 'Race', icon: Swords },
-    { to: '/lessons', label: 'Learn', icon: BookOpen },
     { to: '/stats', label: 'Stats', icon: BarChart3 },
   ];
 
   const moreCategories = [
     {
+      title: 'Adaptive',
+      links: [
+        { to: '/learn/session', label: 'Adaptive Drill', icon: Zap },
+        { to: '/learn/coach', label: 'AI Coach', icon: Sparkles },
+        { to: '/learn/analytics', label: 'Analytics', icon: BarChart3 },
+      ],
+    },
+    {
       title: 'Practice',
       links: [
+        { to: '/lessons', label: 'Lessons', icon: BookOpen },
         { to: '/practice', label: 'Focused Practice', icon: Crosshair },
         { to: '/focus', label: 'Focus Mode', icon: Focus },
         { to: '/challenge', label: 'Daily Challenge', icon: Target },
