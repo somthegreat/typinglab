@@ -27,6 +27,10 @@ import Certificates from "./pages/Certificates";
 import Settings from "./pages/Settings";
 import Goals from "./pages/Goals";
 import FocusMode from "./pages/FocusMode";
+import Learn from "./pages/Learn";
+import LearnSession from "./pages/LearnSession";
+import LearnAnalytics from "./pages/LearnAnalytics";
+import LearnCoach from "./pages/LearnCoach";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -62,6 +66,10 @@ const App = () => (
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/goals" element={<Goals />} />
                 <Route path="/focus" element={<FocusMode />} />
+                <Route path="/learn" element={<Learn />} />
+                <Route path="/learn/session" element={<LearnSession />} />
+                <Route path="/learn/analytics" element={<LearnAnalytics />} />
+                <Route path="/learn/coach" element={<LearnCoach />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
